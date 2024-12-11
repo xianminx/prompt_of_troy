@@ -1,0 +1,11 @@
+# Environment files
+.env*
+!.env.example
+
+# Local Supabase
+**/supabase/.temp
+**/supabase/.branches
+**/supabase/config.toml
+
+# Dependencies
+node_modules/ 

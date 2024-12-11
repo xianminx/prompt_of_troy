@@ -1,0 +1,129 @@
+{
+    "timestamp": "2024-12-10T07:57:25.959Z",
+    "type": "REQUEST",
+    "data": {
+        "method": "POST",
+        "url": "/interactions",
+        "headers": {
+            "host": "575e-212-87-194-6.ngrok-free.app",
+            "user-agent": "Discord-Interactions/1.0 (+https://discord.com)",
+            "content-length": "2091",
+            "content-type": "application/json",
+            "x-forwarded-for": "35.237.4.214",
+            "x-forwarded-host": "575e-212-87-194-6.ngrok-free.app",
+            "x-forwarded-proto": "https",
+            "x-signature-ed25519": "16e32cb8230936cf85f08adcee2e0352f1287a1e05f29ad332897c0bf938cae3d60193bd2727b947160396d90f6e863cef884203041dd20c966e54e2f9c2d704",
+            "x-signature-timestamp": "1733817445",
+            "accept-encoding": "gzip"
+        },
+        "body": {
+            "app_permissions": "2248473465843265",
+            "application_id": "1314420477174743070",
+            "authorizing_integration_owners": { "0": "1305380738711027732" },
+            "channel": {
+                "flags": 0,
+                "guild_id": "1305380738711027732",
+                "id": "1305380738711027734",
+                "last_message_id": "1315950297964613713",
+                "name": "general",
+                "nsfw": false,
+                "parent_id": "1305380738711027733",
+                "permissions": "2251799813685247",
+                "position": 1,
+                "rate_limit_per_user": 0,
+                "topic": null,
+                "type": 0
+            },
+            "channel_id": "1305380738711027734",
+            "context": 0,
+            "data": {
+                "id": "1315179818660266108",
+                "name": "prompt",
+                "options": [
+                    {
+                        "name": "list",
+                        "options": [
+                            {
+                                "name": "query",
+                                "type": 3,
+                                "value": "<@947726501976113222> /defend"
+                            }
+                        ],
+                        "type": 1
+                    }
+                ],
+                "resolved": {
+                    "members": {
+                        "947726501976113222": {
+                            "avatar": null,
+                            "banner": null,
+                            "communication_disabled_until": null,
+                            "flags": 0,
+                            "joined_at": "2024-11-11T03:57:00.921000+00:00",
+                            "nick": null,
+                            "pending": false,
+                            "permissions": "2251799813685247",
+                            "premium_since": null,
+                            "roles": [],
+                            "unusual_dm_activity_until": null
+                        }
+                    },
+                    "users": {
+                        "947726501976113222": {
+                            "avatar": null,
+                            "avatar_decoration_data": null,
+                            "clan": null,
+                            "discriminator": "0",
+                            "global_name": "lucasx",
+                            "id": "947726501976113222",
+                            "primary_guild": null,
+                            "public_flags": 0,
+                            "username": "lucasx7774"
+                        }
+                    }
+                },
+                "type": 1
+            },
+            "entitlement_sku_ids": [],
+            "entitlements": [],
+            "guild": {
+                "features": [],
+                "id": "1305380738711027732",
+                "locale": "en-US"
+            },
+            "guild_id": "1305380738711027732",
+            "guild_locale": "en-US",
+            "id": "1315950487916249118",
+            "locale": "en-US",
+            "member": {
+                "avatar": null,
+                "banner": null,
+                "communication_disabled_until": null,
+                "deaf": false,
+                "flags": 0,
+                "joined_at": "2024-11-11T03:57:00.921000+00:00",
+                "mute": false,
+                "nick": null,
+                "pending": false,
+                "permissions": "2251799813685247",
+                "premium_since": null,
+                "roles": [],
+                "unusual_dm_activity_until": null,
+                "user": {
+                    "avatar": null,
+                    "avatar_decoration_data": null,
+                    "clan": null,
+                    "discriminator": "0",
+                    "global_name": "lucasx",
+                    "id": "947726501976113222",
+                    "primary_guild": null,
+                    "public_flags": 0,
+                    "username": "lucasx7774"
+                }
+            },
+            "token": "aW50ZXJhY3Rpb246MTMxNTk1MDQ4NzkxNjI0OTExODpRYVh0OTdTb05IOVNJbWxPb0RHeFltaUFnN0FjTkhUM21uR0NRRVJDT1dtVm9DeTVhY1VGc0xFa1RacWpJYmpwdlBZck9pWFozYWVJMkdtMXVtWG8ydnBjY01XRm9STlczQXIwR1dYWGszaGlCaTRSc0VDMzlZbDJSSW5sU3c3cQ",
+            "type": 2,
+            "version": 1
+        }
+    }
+}

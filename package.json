@@ -1,0 +1,34 @@
+{
+  "name": "prompt-of-troy",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Prompt of Troy discord bot",
+  "main": "app.js",
+  "type": "module",
+  "engines": {
+    "node": ">=18.x"
+  },
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "NODE_ENV=development node src/index.js",
+    "prod": "NODE_ENV=production node src/index.js",
+    "db:setup": "node scripts/setupDb.js",
+    "db:migrate": "node scripts/migrate.js",
+    "install": "node src/discordInstall/commands.js",
+    "test": "jest"
+  },
+  "author": "Shay DeWael",
+  "license": "MIT",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.47.3",
+    "discord-interactions": "^4.0.0",
+    "dotenv": "^16.4.7",
+    "express": "^4.18.2",
+    "openai": "^4.76.0",
+    "sqlite3": "^5.1.7"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.0",
+    "supabase": "^2.0.0"
+  }
+}
