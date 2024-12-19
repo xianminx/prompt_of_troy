@@ -1,22 +1,22 @@
 // Entity/model definition
 export class Prompt {
-    constructor({id, codeName, date, userId, type, content}) {
+    constructor({id, codeName, type, content, createdAt, createdBy}) {
         this.id = id;
         this.codeName = codeName;
-        this.date = date;
-        this.userId = userId;
         this.type = type;
         this.content = content;
+        this.createdBy = createdBy;
+        this.createdAt = createdAt || new Date();
     }
 
-    static create(userId, type, content, codeName) {
+    static create(createdBy, type, content, codeName) {
         return new Prompt({
-            id: `<@${userId}>/${type}/${codeName}`,
+            id: `<@${createdBy}>/${type}/${codeName}`,
             codeName,
-            date: Math.floor(Date.now() / 1000),
-            userId,
+            createdAt: new Date(),
+            createdBy,
             type,
             content
         });
     }
-} 
+}

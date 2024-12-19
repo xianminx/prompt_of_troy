@@ -1,4 +1,3 @@
-import "dotenv/config";
 import express, { json } from "express";
 import {
     InteractionType,
@@ -10,7 +9,7 @@ import {
 } from "discord-interactions";
 import { handleCommand, handleComponentInteraction } from "./cmd/index.js";
 import { logger } from './utils/logger.js';
-
+import { config } from './config/index.js';
 
 
 // Create an express app

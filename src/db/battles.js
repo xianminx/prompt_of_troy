@@ -1,5 +1,4 @@
-import { db } from "./index.js";
-import { DbWrapper } from "./dbWrapper.js";
+import { db } from "./supabase.js";
 
 export const battlesDb = {
     async getById(id) {
@@ -34,14 +33,29 @@ export const battlesDb = {
     },
 
     async getAll(query) {
-        const queryBuilder = DbWrapper.query('battles');
+        // If query is empty or undefined, return all battles
+        if (!query?.trim()) {
+            const { data, error } = await db
+                .from('battles')
+                .select()
+                .limit(50);
 
-        if (query) {
-            queryBuilder.where(`attackPromptId.ilike.${query}%,defendPromptId.ilike.${query}%`);
+            if (error) throw error;
+            if (!data) return [];
+            return data;
         }
 
-        return queryBuilder
-            .orderBy('date')
-            .execute();
+        // If there is a query, search by prompt IDs
+        const { data, error } = await db
+            .from('battles')
+            .or([
+                { attackPromptId: { ilike: `${query.trim()}%` } },
+                { defendPromptId: { ilike: `${query.trim()}%` } }
+            ])
+            .limit(50);
+
+        if (error) throw error;
+        if (!data) return [];
+        return data;
     }
 };

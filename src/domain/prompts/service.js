@@ -32,7 +32,7 @@ export class PromptService {
         }
 
         const codeName = generateCodeName(content);
-        const prompt = Prompt.create(userId, type, content, codeName);
+        const prompt = Prompt.create({ createdBy: userId, type, content, codeName });
         await promptsDb.create(prompt);
         return prompt;
     }

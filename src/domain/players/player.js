@@ -1,22 +1,31 @@
 export class Player {
-    constructor({
-        id,
-        name,
-        rating,
-        wins = 0,
-        losses = 0,
-        draws = 0,
-        createdAt,
-        updatedAt
-    }) {
+    constructor(dbPlayer) {
+        let {
+            id,
+            name,
+            rating,
+            wins = 0,
+            losses = 0,
+            draws = 0,
+        } = dbPlayer;
+
         this.id = id;
         this.name = name;
         this.rating = rating;
         this.wins = wins;
         this.losses = losses;
         this.draws = draws;
-        this.createdAt = createdAt instanceof Date ? createdAt : new Date(createdAt);
-        this.updatedAt = updatedAt instanceof Date ? updatedAt : new Date(updatedAt);
+
+        const createdAt = dbPlayer.createdAt || dbPlayer.createdat || dbPlayer.created_at;
+
+        this.createdAt = createdAt instanceof Date 
+            ? createdAt 
+            : new Date(createdAt);
+
+        const updatedAt = dbPlayer.updatedAt || dbPlayer.updatedat || dbPlayer.updated_at;
+        this.updatedAt = updatedAt instanceof Date 
+            ? updatedAt 
+            : new Date(updatedAt);
     }
 
     static create({ id, name }) {
@@ -24,6 +33,9 @@ export class Player {
             id,
             name,
             rating: 1000,
+            wins: 0,
+            losses: 0,
+            draws: 0,
             createdAt: new Date(),
             updatedAt: new Date()
         });
@@ -47,18 +59,5 @@ export class Player {
         }
         this.updatedAt = new Date();
         return this;
-    }
-
-    toJSON() {
-        return {
-            id: this.id,
-            name: this.name,
-            rating: this.rating,
-            wins: this.wins,
-            losses: this.losses,
-            draws: this.draws,
-            createdAt: this.createdAt.getTime(),
-            updatedAt: this.updatedAt.getTime()
-        };
     }
 }

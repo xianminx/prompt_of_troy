@@ -1,90 +1,76 @@
-import { db } from './index.js';
+import { db } from './supabase.js';
 
+const TABLE_NAME = 'players';
 export const playersDb = {
     async getById(id) {
-        return new Promise((resolve, reject) => {
-            db.get(
-                'SELECT * FROM players WHERE id = ?',
-                [id],
-                (err, row) => {
-                    if (err) reject(err);
-                    if (!row) resolve(null);
-                    resolve(row);
-                }
-            );
-        });
+        const { data, error } = await db
+            .from(TABLE_NAME)
+            .select('*')
+            .eq('id', id)
+            .single();
+        console.log({data, error});
+            
+        if (error) return null;
+        return data;
     },
     
     async create(player) {
-        return new Promise((resolve, reject) => {
-            db.run(
-                `INSERT INTO players 
-                (id, name, rating, wins, losses, draws, created_at, updated_at) 
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-                [
-                    player.id,
-                    player.name,
-                    player.rating,
-                    player.wins,
-                    player.losses,
-                    player.draws,
-                    player.createdAt.getTime(),
-                    player.updatedAt.getTime()
-                ],
-                (err) => {
-                    if (err) reject(err);
-                    resolve(player);
-                }
-            );
-        });
+        const { data, error } = await db
+            .from(TABLE_NAME)
+            .insert([{
+                id: player.id,
+                name: player.name,
+                rating: player.rating,
+                wins: player.wins,
+                losses: player.losses,
+                draws: player.draws,
+                createdAt: player.createdAt,
+                updatedAt: player.updatedAt
+            }])
+            .select()
+            .single();
+            
+        if (error) throw error;
+        return data;
     },
     
     async update(player) {
-        return new Promise((resolve, reject) => {
-            db.run(
-                `UPDATE players 
-                SET rating = ?, wins = ?, losses = ?, draws = ?, updated_at = ? 
-                WHERE id = ?`,
-                [
-                    player.rating,
-                    player.wins,
-                    player.losses,
-                    player.draws,
-                    player.updatedAt.getTime(),
-                    player.id
-                ],
-                (err) => {
-                    if (err) reject(err);
-                    resolve(player);
-                }
-            );
-        });
+        const { data, error } = await db
+            .from(TABLE_NAME)
+            .update({
+                rating: player.rating,
+                wins: player.wins,
+                losses: player.losses,
+                draws: player.draws,
+                updatedAt: player.updatedAt
+            })
+            .eq('id', player.id)
+            .select()
+            .single();
+            
+        if (error) throw error;
+        return data;
     },
     
     async getTopPlayers(limit) {
-        return new Promise((resolve, reject) => {
-            db.all(
-                'SELECT * FROM players ORDER BY rating DESC LIMIT ?',
-                [limit],
-                (err, rows) => {
-                    if (err) reject(err);
-                    resolve(rows);
-                }
-            );
-        });
+        const { data, error } = await db
+            .from(TABLE_NAME)
+            .select('*')
+            .order('rating', { ascending: false })
+            .limit(limit);
+            
+        if (error) throw error;
+        return data;
     },
     
     async search(query) {
-        return new Promise((resolve, reject) => {
-            const searchPattern = `%${query}%`;
-            db.all(
-                'SELECT * FROM players WHERE name LIKE ? ORDER BY rating DESC',
-                [searchPattern],
-                (err, rows) => {
-                    if (err) reject(err);
-                    resolve(rows);
-                }
-            );
-        });
+        const { data, error } = await db
+            .from(TABLE_NAME)
+            .select('*')
+            .ilike('name', `%${query}%`)
+            .order('rating', { ascending: false });
+            
+        if (error) throw error;
+        return data;
     }
 };

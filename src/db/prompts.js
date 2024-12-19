@@ -1,4 +1,6 @@
-import { db } from './index.js';
+import { db } from './supabase.js';
+
+const TABLE_NAME = 'prompts';
 
 // Query type constants
 const QUERY_TYPES = {
@@ -126,114 +128,106 @@ const parseQuery = (query) => {
     );
 };
 
-// Build SQL query based on query type
-const buildSqlQuery = (queryInfo) => {
+// Replace buildSqlQuery with buildSupabaseQuery
+const buildSupabaseQuery = (queryInfo) => {
     if (!queryInfo.type) {
-        return {
-            sql: 'SELECT * FROM prompts ORDER BY date DESC',
-            params: []
-        };
+        return db.from(TABLE_NAME).select('*').order('createdAt', { ascending: false });
     }
 
     try {
+        let query = db.from(TABLE_NAME).select('*');
+
         switch (queryInfo.type) {
             case QUERY_TYPES.TYPE_ONLY:
-                return {
-                    sql: 'SELECT * FROM prompts WHERE type = ? ORDER BY date DESC',
-                    params: [queryInfo.params.promptType]
-                };
+                return query
+                    .eq('type', queryInfo.params.promptType)
+                    .order('createdAt', { ascending: false });
 
             case QUERY_TYPES.USER_ONLY:
-                return {
-                    sql: 'SELECT * FROM prompts WHERE userId = ? ORDER BY date DESC',
-                    params: [queryInfo.params.userId]
-                };
+                return query
+                    .eq('createdBy', queryInfo.params.createdBy)
+                    .order('createdAt', { ascending: false });
 
             case QUERY_TYPES.USER_AND_TYPE:
-                return {
-                    sql: 'SELECT * FROM prompts WHERE userId = ? AND type = ? ORDER BY date DESC',
-                    params: [queryInfo.params.userId, queryInfo.params.promptType]
-                };
+                return query
+                .eq('createdBy', queryInfo.params.createdBy)
+                .eq('type', queryInfo.params.promptType)
+                    .order('createdAt', { ascending: false });
 
             case QUERY_TYPES.SPECIFIC_PROMPT:
-                return {
-                    sql: 'SELECT * FROM prompts WHERE userId = ? AND type = ? AND codeName = ? ORDER BY date DESC',
-                    params: [
-                        queryInfo.params.userId,
-                        queryInfo.params.promptType,
-                        queryInfo.params.codeName
-                    ]
-                };
-
+                return query
+                .eq('createdBy', queryInfo.params.createdBy)
+                .eq('type', queryInfo.params.promptType)
+                .eq('codeName', queryInfo.params.codeName)
+                    .order('createdAt', { ascending: false });
             default:
                 throw new Error('Invalid query type');
         }
     } catch (error) {
-        console.error('Error building SQL query:', error);
+        console.error('Error building Supabase query:', error);
         // Return a safe default query
-        return {
-            sql: 'SELECT * FROM prompts ORDER BY date DESC',
-            params: []
-        };
+        return db.from(TABLE_NAME).select('*').order('date', { ascending: false });
     }
 };
 
 export const promptsDb = {
     async getById(id) {
-        return new Promise((resolve, reject) => {
-            db.get('SELECT * FROM prompts WHERE id = ?', [id], (err, row) => {
-                if (err) reject(err);
-                resolve(row);
-            });
-        });
+        const { data, error } = await db
+            .from(TABLE_NAME)
+            .select('*')
+            .eq('id', id)
+            .single();
+
+        if (error) throw error;
+        return data;
     },
 
     async getAll(query) {
-        return new Promise((resolve, reject) => {
-            try {
-                const queryInfo = parseQuery(query);
-                const { sql, params } = buildSqlQuery(queryInfo);
+        try {
+            const queryInfo = parseQuery(query);
+            const supabaseQuery = buildSupabaseQuery(queryInfo);
 
-                console.log('Query:', { sql, params });
+            const { data, error } = await supabaseQuery;
 
-                db.all(sql, params, (err, rows) => {
-                    if (err) {
-                        console.error('Database error:', err);
-                        reject(new Error('Failed to fetch prompts'));
-                        return;
-                    }
-                    resolve(rows || []);
-                });
-            } catch (error) {
-                console.error('Query parsing error:', error);
-                // Instead of rejecting, return empty array with error message
-                resolve({
-                    rows: [],
-                    error: error.message
-                });
+            if (error) {
+                console.error('Database error:', error);
+                throw new Error('Failed to fetch prompts');
             }
-        });
+
+            return data || [];
+        } catch (error) {
+            console.error('Query parsing error:', error);
+            return {
+                rows: [],
+                error: error.message
+            };
+        }
     },
 
     async create(prompt) {
-        return new Promise((resolve, reject) => {
-            db.run(
-                'INSERT INTO prompts (id, codeName, date, userId, type, content) VALUES (?, ?, ?, ?, ?, ?)',
-                [prompt.id, prompt.codeName, prompt.date, prompt.userId, prompt.type, prompt.content],
-                (err) => {
-                    if (err) reject(err);
-                    resolve(prompt);
-                }
-            );
-        });
+        const { data, error } = await db
+            .from(TABLE_NAME)
+            .insert([{
+                id: prompt.id,
+                codeName: prompt.codeName,
+                createdAt: prompt.date,
+                createdBy: prompt.userId,
+                type: prompt.type,
+                content: prompt.content
+            }])
+            .select()
+            .single();
+
+        if (error) throw error;
+        return data;
     },
 
     async delete(id) {
-        return new Promise((resolve, reject) => {
-            db.run('DELETE FROM prompts WHERE id = ?', [id], (err) => {
-                if (err) reject(err);
-                resolve();
-            });
-        });
+        const { error } = await db
+            .from(TABLE_NAME)
+            .delete()
+            .eq('id', id);
+
+        if (error) throw error;
     }
 }; 

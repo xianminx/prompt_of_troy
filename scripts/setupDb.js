@@ -2,7 +2,7 @@ import { config } from '../src/config/index.js';
 import { setupDatabase } from '../src/db/migrations.js';
 
 async function main() {
-    console.log(`Setting up database for ${config.isDevelopment ? 'development' : 'production'}`);
+    console.log(`Setting up database for ${config.isDevelopment ? 'dev' : 'prod'}`);
     
     try {
         await setupDatabase();

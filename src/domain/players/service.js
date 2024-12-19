@@ -1,18 +1,14 @@
-import { playersDb } from '../../db/players.js';
-import { Player } from './player.js';
+import { playersDb } from "../../db/players.js";
+import { Player } from "./player.js";
 
 export class PlayerService {
     async getById(id) {
         const playerData = await playersDb.getById(id);
+        console.log({playerData});
         return playerData ? new Player(playerData) : null;
     }
 
     async create(id, name) {
-        const existingPlayer = await this.getById(id);
-        if (existingPlayer) {
-            throw new Error(`Player with id ${id} already exists`);
-        }
-
         const player = Player.create({ id, name });
         await playersDb.create(player);
         return player;
@@ -31,11 +27,11 @@ export class PlayerService {
 
     async getLeaderboard(limit = 10) {
         const players = await playersDb.getTopPlayers(limit);
-        return players.map(data => new Player(data));
+        return players.map((data) => new Player(data));
     }
 
     async search(query) {
         const players = await playersDb.search(query);
-        return players.map(data => new Player(data));
+        return players.map((data) => new Player(data));
     }
-} 
+}

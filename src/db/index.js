@@ -1,9 +1,5 @@
-import { createClient } from '@supabase/supabase-js';
-import { config } from '../config/index.js';
+export { battlesDb } from './battles.js';
+export { playersDb } from './players.js';
+export { promptsDb } from './prompts.js';
 
-const supabase = createClient(
-    config.supabase.url,
-    config.supabase.key
-);
-
-export { supabase as db }; 
+import { playersDb } from './players.js';

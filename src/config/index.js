@@ -2,8 +2,11 @@ import dotenv from 'dotenv';
 import path from 'path';
 
 // Load environment-specific .env file
-const envFile = `.env.${process.env.NODE_ENV || 'development'}`;
-dotenv.config({ path: path.resolve(process.cwd(), envFile) });
+const envFileName = `.env.${process.env.NODE_ENV || 'dev'}`;
+const envFile = path.resolve(process.cwd(), envFileName);
+
+console.log(`Loading environment file: ${envFile}`);
+dotenv.config({ path: envFile });
 
 export const config = {
     supabase: {
@@ -11,6 +14,6 @@ export const config = {
         key: process.env.SUPABASE_KEY,
         serviceRole: process.env.SUPABASE_SERVICE_ROLE,
     },
-    isProduction: process.env.NODE_ENV === 'production',
-    isDevelopment: process.env.NODE_ENV === 'development',
+    isProduction: process.env.NODE_ENV === 'prod',
+    isDevelopment: process.env.NODE_ENV === 'dev',
 }; 
