@@ -56,6 +56,8 @@ export const mockBattles: Battle[] = Array.from({ length: 25 }, (_, i) => {
         defenderId: player2.id,
         attackPromptId: mockPrompts[attackPromptIndex].id,
         defendPromptId: mockPrompts[defendPromptIndex].id,
+        attackPrompt: mockPrompts[attackPromptIndex],
+        defendPrompt: mockPrompts[defendPromptIndex],
         status: 'completed',
         winner: winner,
         secret: 'mock-secret',

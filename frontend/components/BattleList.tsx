@@ -9,6 +9,12 @@ interface Battle {
   player2Name: string;
   createdAt: string;
   prompt: string;
+  attackPrompt: any;
+  defendPrompt: any;
+  status: string;
+  winner: string;
+  attackerId: string;
+  defenderId: string;
 }
 
 function BattleList() {
@@ -45,13 +51,13 @@ function BattleList() {
               Date
             </th>
             <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Players
+                Status
             </th>
             <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Winner
+              Attacker
             </th>
             <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Prompt
+              Defender
             </th>
           </tr>
         </thead>
@@ -61,18 +67,18 @@ function BattleList() {
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                 {new Date(battle.createdAt).toLocaleDateString()}
               </td>
-              <td className="px-6 py-4 whitespace-nowrap">
-                <div className="text-sm text-gray-900">
-                  {battle.player1Name} vs {battle.player2Name}
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                {battle.status}
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                <div className={`truncate max-w-[250px] ${battle.winner === battle.attackerId ? 'font-bold text-green-600' : ''}`}>
+                  @{battle.attackPrompt.createdBy}/attack/{battle.attackPrompt.codeName}
                 </div>
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {battle.winnerId ? (
-                  battle.winnerId === battle.player1Id ? battle.player1Name : battle.player2Name
-                ) : 'Pending'}
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                <div className="truncate max-w-xs">{battle.prompt}</div>
+                <div className={`truncate max-w-[250px] ${battle.winner === battle.defenderId ? 'font-bold text-green-600' : ''}`}>
+                   @{battle.defendPrompt.createdBy}/defend/{battle.defendPrompt.codeName}
+                </div>
               </td>
             </tr>
           ))}
