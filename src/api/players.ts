@@ -1,12 +1,14 @@
 import express from 'express';
 import { PlayerService } from '../services/PlayerService';
+import { mockPlayers } from './mock';
 
 const router = express.Router();
 const playerService = new PlayerService();
 
 router.get('/', async (req, res) => {
     try {
-        const players = await playerService.getAll();
+        // const players = await playerService.getAll();
+        const players = mockPlayers;
         res.json(players);
     } catch (error) {
         console.error('Error fetching players:', error);

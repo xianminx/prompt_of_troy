@@ -1,12 +1,14 @@
 import express from 'express';
 import { BattleService } from '../services/BattleService';
+import { mockBattles } from './mock';
 
 const router = express.Router();
 const battleService = new BattleService();
 
 router.get('/', async (req, res) => {
     try {
-        const battles = await battleService.getAll();
+        // const battles = await battleService.getAll();
+        const battles = mockBattles;
         res.json(battles);
     } catch (error) {
         console.error('Error fetching battles:', error);

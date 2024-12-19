@@ -45,7 +45,7 @@ function App() {
 
   return (
     <div className="app">
-      <h1 className="text-3xl font-bold mb-6">Prompt of Troy</h1>
+      <h1 className="text-3xl font-bold mb-6">Prompt of Troy Leaderboard</h1>
       <div className="tabs">
         <button 
           className={`tab ${activeTab === 'players' ? 'active' : ''}`}

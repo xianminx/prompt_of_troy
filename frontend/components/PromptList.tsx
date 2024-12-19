@@ -81,11 +81,7 @@ const PromptList: React.FC = () => {
                     {prompt.type}
                   </span>
                 </td>
-                <td className="px-6 py-4">
-                  <div className="text-sm text-gray-900 max-w-md truncate">
-                    {prompt.content}
-                  </div>
-                </td>
+                
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   {new Date(prompt.createdAt).toLocaleDateString(undefined, {
                     year: 'numeric',
@@ -94,6 +90,11 @@ const PromptList: React.FC = () => {
                     hour: '2-digit',
                     minute: '2-digit'
                   })}
+                </td>
+                <td className="px-6 py-4">
+                  <div className="text-sm text-gray-900 max-w-md truncate">
+                    {prompt.content}
+                  </div>
                 </td>
               </tr>
             ))}
