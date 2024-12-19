@@ -15,6 +15,13 @@
       "when": 1734621582734,
       "tag": "0001_serious_shockwave",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1734627413056,
+      "tag": "0002_windy_wong",
+      "breakpoints": true
     }
   ]
 }

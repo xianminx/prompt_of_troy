@@ -43,6 +43,7 @@ class Logger {
             body: req.body,
         };
         await this.log('REQUEST', requestData);
+        console.log('REQUEST', requestData);
     }
 
     async logResponse(res: Response, body: any, responseTime: number) {
@@ -53,6 +54,7 @@ class Logger {
             responseTime,
         };
         await this.log('RESPONSE', responseData);
+        console.log('RESPONSE', responseData);
     }
 }
 

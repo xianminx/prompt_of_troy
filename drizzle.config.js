@@ -7,6 +7,6 @@ export default defineConfig({
   out: './supabase/migrations',
   dialect: 'postgresql',
   dbCredentials: {
-    url: config.supabase.db!,
+    url: config.supabase.db,
   },
 });
