@@ -8,6 +8,8 @@ import { handleCommand, handleComponentInteraction } from "./cmd/index";
 import { logger } from './utils/logger';
 import promptsRouter from './api/prompts';
 import path from 'path';
+import battlesRouter from './api/battles';
+import playersRouter from './api/players';
 
 // Create an express app
 const app = express();
@@ -18,12 +20,14 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, '../public')));
 
 // Add route for home page
-// app.get('/', (req: Request, res: Response) => {
-//     res.sendFile(path.join(__dirname, '../public/index.html'));
-// });
+app.get('/web', (req: Request, res: Response) => {
+    res.sendFile(path.join(__dirname, '../public/index.html'));
+});
 
 // Add the prompts API router
 app.use('/api/prompts', promptsRouter);
+app.use('/api/battles', battlesRouter);
+app.use('/api/players', playersRouter);
 
 // Logging middleware
 app.use(async (req: Request, res: Response, next: NextFunction) => {

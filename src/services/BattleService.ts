@@ -178,7 +178,7 @@ export class BattleService {
         }
     }
 
-    async getAll(query: BattleQuery): Promise<Battle[]> {
+    async getAll(query?: BattleQuery): Promise<Battle[]> {
         const battles = await findBattles(query);
         return battles;
     }

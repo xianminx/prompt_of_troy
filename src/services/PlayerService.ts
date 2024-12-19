@@ -1,4 +1,4 @@
-import { getPlayerById, insertPlayer, type SelectPlayer } from "../db/index";
+import { getPlayerById, insertPlayer, type SelectPlayer, getAllPlayers } from "../db/index";
 import { db } from '../db';
 import { eq } from 'drizzle-orm';
 import { playersTable } from '../db/schema';
@@ -16,6 +16,11 @@ export class PlayerService {
         const player = await getPlayerById(id);
         return player;
     }
+    async getAll() {
+        const players = await getAllPlayers();
+        return players;
+    }
+    
     async updateRating(playerId: string, newRating: number): Promise<void> {
         await db.update(playersTable)
             .set({ rating: newRating })
