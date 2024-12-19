@@ -1,7 +1,7 @@
-import { db } from '../index.js';
-import { playersTable, promptsTable, battlesTable } from '../schema.js';
+import { db } from '../index';
+import { playersTable, promptsTable, battlesTable, type InsertPlayer, type InsertPrompt, type InsertBattle} from '../schema';
 import { eq } from 'drizzle-orm';
-import { type InsertPlayer, type InsertPrompt, type InsertBattle } from '../schema.js';
+
 export async function updatePlayer(id: string, updates: Partial<Omit<InsertPlayer, 'id'>>) {
   const [updatedPlayer] = await db.update(playersTable)
     .set(updates)

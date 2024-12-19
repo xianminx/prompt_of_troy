@@ -2,7 +2,7 @@ import { handlePromptCmd } from './promptCmd';
 import { handleTestCmd } from './testCmd';
 import { handleBattleCmd } from './battleCmd';
 import { Request, Response } from 'express';
-import { InteractionResponseType } from "discord-interactions";
+import { InteractionResponseType, InteractionResponseFlags } from "discord-interactions";
 
 const CMD = {
     TEST: "test",
@@ -34,12 +34,21 @@ async function handleCommand(req: Request, res: Response) {
 
 async function handleComponentInteraction(req: Request, res: Response) {
     const { custom_id } = req.body.data;
-    if (custom_id === "attack") {
+    
+    if (custom_id.startsWith('battle_')) {
+        const promptId = custom_id.replace('battle_', '');
+        // TODO: Implement battle start logic
         await res.send({
             type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-            data: { content: "Hello, world!" },
+            data: { 
+                content: `Starting battle with prompt ${promptId}...`,
+                flags: InteractionResponseFlags.EPHEMERAL
+            },
         });
+        return;
     }
+
+    // ... other component handlers
 }
 
 

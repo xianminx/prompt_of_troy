@@ -4,8 +4,15 @@ import { Request, Response } from "express";
 async function handleTestCmd(_req: Request, res: Response) {
     await res.send({
         type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-        data: { content: "Hello, world!" },
+        data: { content: "``` This is a message to <@947726501976113222> ```" },
+        
     });
+    // let embed = new Embed(
+    //     title="Copy Text",
+    //     description="```This is the text to copy```",
+    //     color=discord.Color.blue()
+    // )
+    // await ctx.send(embed=embed)
 }
 
 // Simple test command

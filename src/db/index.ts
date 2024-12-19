@@ -11,9 +11,9 @@ const connectionString = process.env.DATABASE_URL as string
 const client = postgres(connectionString, { prepare: false })
 export const db = drizzle(client);
 
-export * from './schema.js';
-export * from './queries/insert.js';
-export * from './queries/update.js';
-export * from './queries/delete.js';
-export * from './queries/select.js';
-export * from './battles.js';
+export * from './schema';
+export * from './queries/insert';
+export * from './queries/update';
+export * from './queries/delete';
+export * from './queries/select';
+export * from './battles';

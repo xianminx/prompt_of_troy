@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { PromptService } from "../services/index";
 import { InteractionResponseType, InteractionResponseFlags } from "discord-interactions";
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
 
 interface PromptCommandOption {
     type: number;
@@ -112,30 +113,60 @@ async function handlePromptCmd(req: Request, res: Response): Promise<void> {
 }
 
 async function handlePromptList(req: Request, res: Response): Promise<void> {
+    const NO_PROMPTS_MESSAGE = "No matching prompts found. Expected formats:\n" +
+                "/prompt list <query>\n" +
+                '- "attack"(a) or "defend"(d)\n' +
+                "- <@userId>\n" +
+                "- <@userId>/attack(a) or <@userId>/defend(d)\n" +
+                "- <@userId>/attack(a)/codename or <@userId>/defend(d)/codename"
     try {
         const query = req.body.data.options[0]?.options?.[0]?.value;
+        console.log("query: ", query);
         const prompts = await promptService.getAll(query);
-        const promptList = prompts
-            .map((p, i) => `${i + 1}. ${p.id}`)
-            .join("\n");
+        
+        if (prompts.length === 0) {
+            await res.send({
+                type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+                data: {
+                    content: NO_PROMPTS_MESSAGE,
+                },
+            });
+            return;
+        }
+
+        // Create one action row per prompt
+        const actionRows = prompts.map((p, i) => {
+            const label = `<@${p.createdBy}>/${p.type}/${p.codeName}`
+            const button = new ButtonBuilder()
+                .setCustomId(`battle_${p.id}`)
+                .setLabel(`Battle ${label}`)
+                .setStyle(ButtonStyle.Primary);
+
+            const row = new ActionRowBuilder<ButtonBuilder>()
+                .addComponents(button);
+
+            return {
+                content: `${i + 1}. <@${p.createdBy}>/${p.type}/${p.codeName}`,
+                row
+            };
+        });
+
+        // Combine into a single message
+        const content = actionRows.map(item => item.content).join('\n');
+        const components = actionRows.map(item => item.row);
 
         await res.send({
             type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
             data: {
-                content: promptList.length
-                    ? `Prompts matching \`${query}\`:\n${promptList}`
-                    : "No prompts available",
+                content: `Prompts:\n${content}`,
+                components: components
             },
         });
     } catch (error) {
         console.error("Error in handlePromptList:", error);
         await sendErrorResponse(
             res,
-            "No matching prompts found, Expected formats:\n" +
-                '- "attack"(a) or "defend"(d)\n' +
-                "- <@userId>\n" +
-                "- <@userId>/attack(a) or <@userId>/defend(d)\n" +
-                "- <@userId>/attack(a)/codename or <@userId>/defend(d)/codename"
+            NO_PROMPTS_MESSAGE
         );
     }
 }

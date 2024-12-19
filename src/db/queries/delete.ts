@@ -1,5 +1,5 @@
-import { db } from '../index.js';
-import { playersTable, promptsTable, battlesTable } from '../schema.js';
+import { db } from '../index';
+import { playersTable, promptsTable, battlesTable } from '../schema';
 import { eq } from 'drizzle-orm';
 
 export async function deletePlayer(id: string) {

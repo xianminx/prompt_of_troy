@@ -1,5 +1,5 @@
-import { db } from '../index.js';
-import { playersTable, promptsTable, type InsertPlayer, type InsertPrompt, battlesTable, type InsertBattle } from '../schema.js';
+import { db } from '../index';
+import { playersTable, promptsTable, type InsertPlayer, type InsertPrompt, battlesTable, type InsertBattle } from '../schema';
 
 export async function insertPlayer(player: InsertPlayer) {
   const [newPlayer] = await db.insert(playersTable)
