@@ -1,5 +1,30 @@
 # Prompt of Troy
 
+**Prompt of Troy** is a competitive prompt hacking game where players craft prompts to either attack or defend a secret key. It uses an [ELO rating system](https://en.wikipedia.org/wiki/Elo_rating_system) that reflects your skill in prompt engineering.
+
+
+## Leaderboard & Rankings
+
+![](./docs/img/players.png)
+
+---
+
+
+## Leaderboard by Prompts 
+
+![](./docs/img/prompts.png)
+
+---
+
+
+## Battle List 
+
+![](./docs/img/battles.png)
+
+
+## Technical Design
+[Design](./docs/Design.md)
+
 ## Deploy
 
 ### DB setup
