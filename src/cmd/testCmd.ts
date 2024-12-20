@@ -1,11 +1,10 @@
 import { InteractionResponseType } from "discord-interactions";
-import { Request, Response } from "express";
+import { NextRequest, NextResponse } from "next/server";
 
-async function handleTestCmd(_req: Request, res: Response) {
-    await res.send({
+async function handleTestCmd(_req: NextRequest) {
+    return NextResponse.json({
         type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
         data: { content: "``` This is a message to <@947726501976113222> ```" },
-        
     });
     // let embed = new Embed(
     //     title="Copy Text",
@@ -22,7 +21,6 @@ const TEST_COMMAND = {
     type: 1,
     integration_types: [0, 1],
     contexts: [0, 1, 2],
-  };
-  
+};
 
 export { handleTestCmd, TEST_COMMAND };

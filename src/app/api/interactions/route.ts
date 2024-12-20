@@ -13,9 +13,9 @@ export async function POST(request: NextRequest) {
         if (type === InteractionType.PING) {
             return NextResponse.json({ type: InteractionResponseType.PONG });
         } else if (type === InteractionType.APPLICATION_COMMAND) {
-            return handleCommand(request, NextResponse);
+            return handleCommand(request);
         } else if (type === InteractionType.MESSAGE_COMPONENT) {
-            return handleComponentInteraction(request, NextResponse);
+            return handleComponentInteraction(request);
         } else {
             console.error("unknown interaction type", type);
             return NextResponse.json(

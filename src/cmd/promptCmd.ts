@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { NextRequest, NextResponse } from "next/server";
 import { PromptService } from "../services/index";
 import { InteractionResponseType, InteractionResponseFlags } from "discord-interactions";
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
@@ -82,9 +82,10 @@ const PROMPT_COMMAND: PromptCommand = {
 
 const promptService = new PromptService();
 
-async function handlePromptCmd(req: Request, res: Response): Promise<void> {
+async function handlePromptCmd(req: NextRequest) {
     try {
-        const options = req.body.data.options;
+        const body = await req.json();
+        const options = body.data.options;
         if (!options || options.length === 0) {
             throw new Error("No subcommand provided");
         }
@@ -92,27 +93,21 @@ async function handlePromptCmd(req: Request, res: Response): Promise<void> {
         const subcommand = options[0].name;
         switch (subcommand) {
             case "list":
-                await handlePromptList(req, res);
-                break;
+                return await handlePromptList(req);
             case "create":
-                await handlePromptCreate(req, res);
-                break;
+                return await handlePromptCreate(req);
             case "delete":
-                await handlePromptDelete(req, res);
-                break;
+                return await handlePromptDelete(req);
             default:
                 throw new Error("Invalid subcommand");
         }
     } catch (error) {
         console.error("Error in handlePromptCmd:", error);
-        await sendErrorResponse(
-            res,
-            "An error occurred while processing your command"
-        );
+        return sendErrorResponse("An error occurred while processing your command");
     }
 }
 
-async function handlePromptList(req: Request, res: Response): Promise<void> {
+async function handlePromptList(req: NextRequest) {
     const NO_PROMPTS_MESSAGE = "No matching prompts found. Expected formats:\n" +
                 "/prompt list <query>\n" +
                 '- "attack"(a) or "defend"(d)\n' +
@@ -120,18 +115,18 @@ async function handlePromptList(req: Request, res: Response): Promise<void> {
                 "- <@userId>/attack(a) or <@userId>/defend(d)\n" +
                 "- <@userId>/attack(a)/codename or <@userId>/defend(d)/codename"
     try {
-        const query = req.body.data.options[0]?.options?.[0]?.value;
+        const body = await req.json();
+        const query = body.data.options[0]?.options?.[0]?.value;
         console.log("query: ", query);
         const prompts = await promptService.getAll(query);
         
         if (prompts.length === 0) {
-            await res.send({
+            return NextResponse.json({
                 type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
                 data: {
                     content: NO_PROMPTS_MESSAGE,
                 },
             });
-            return;
         }
 
         // Create one action row per prompt
@@ -151,11 +146,10 @@ async function handlePromptList(req: Request, res: Response): Promise<void> {
             };
         });
 
-        // Combine into a single message
         const content = actionRows.map(item => item.content).join('\n');
         const components = actionRows.map(item => item.row);
 
-        await res.send({
+        return NextResponse.json({
             type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
             data: {
                 content: `Prompts:\n${content}`,
@@ -164,23 +158,20 @@ async function handlePromptList(req: Request, res: Response): Promise<void> {
         });
     } catch (error) {
         console.error("Error in handlePromptList:", error);
-        await sendErrorResponse(
-            res,
-            NO_PROMPTS_MESSAGE
-        );
+        return sendErrorResponse(NO_PROMPTS_MESSAGE);
     }
 }
 
-async function handlePromptCreate(req: Request, res: Response): Promise<void> {
+async function handlePromptCreate(req: NextRequest) {
     try {
-        const user =
-            req.body.context === 0 ? req.body.member.user : req.body.user;
+        const body = await req.json();
+        const user = body.context === 0 ? body.member.user : body.user;
         if (!user) {
             throw new Error("User information not found");
         }
 
         const userId = user.id;
-        const createOptions = req.body.data.options[0]?.options;
+        const createOptions = body.data.options[0]?.options;
 
         if (!createOptions) {
             throw new Error("No prompt options provided");
@@ -192,15 +183,13 @@ async function handlePromptCreate(req: Request, res: Response): Promise<void> {
         )?.value;
 
         if (!type || !content) {
-            throw new Error(
-                "Missing required fields: type and content are required"
-            );
+            throw new Error("Missing required fields: type and content are required");
         }
 
         const prompt = await promptService.create(userId, type, content);
         console.log("createPrompt: ", { userId, type, content });
 
-        await res.send({
+        return NextResponse.json({
             type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
             data: {
                 content: `<@${userId}> created \`${type}/${prompt.codeName}\``,
@@ -208,46 +197,41 @@ async function handlePromptCreate(req: Request, res: Response): Promise<void> {
         });
     } catch (error) {
         console.error("Error in handlePromptCreate:", error);
-        await sendErrorResponse(
-            res,
+        return sendErrorResponse(
             `Failed to create prompt: ${error instanceof Error ? error.message : 'Unknown error'}`
         );
     }
 }
 
-async function handlePromptDelete(req: Request, res: Response): Promise<void> {
+async function handlePromptDelete(req: NextRequest) {
     try {
-        const promptId = req.body.data.options[0]?.options[0]?.value;
+        const body = await req.json();
+        const promptId = body.data.options[0]?.options[0]?.value;
         if (!promptId) {
             throw new Error("No prompt ID provided");
         }
 
         await promptService.delete(promptId);
-        await res.send({
+        return NextResponse.json({
             type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
             data: { content: `Deleted prompt with ID: ${promptId}` },
         });
     } catch (error) {
         console.error("Error in handlePromptDelete:", error);
-        await sendErrorResponse(
-            res,
+        return sendErrorResponse(
             `Failed to delete prompt: ${error instanceof Error ? error.message : 'Unknown error'}`
         );
     }
 }
 
-async function sendErrorResponse(res: Response, message: string): Promise<void> {
-    try {
-        await res.send({
-            type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-            data: {
-                content: message,
-                flags: 64, // Makes the error message ephemeral (only visible to the user)
-            },
-        });
-    } catch (error) {
-        console.error("Failed to send error response:", error);
-    }
+function sendErrorResponse(message: string) {
+    return NextResponse.json({
+        type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+        data: {
+            content: message,
+            flags: InteractionResponseFlags.EPHEMERAL, // Makes the error message ephemeral
+        },
+    });
 }
 
 export { handlePromptCmd, PROMPT_COMMAND }; 
