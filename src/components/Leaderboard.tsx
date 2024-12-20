@@ -1,18 +1,18 @@
-import './styles/globals.css';
-import './styles/App.css';
+'use client'
+import '../app/globals.css';
+import '../app/App.css';
 import React, { useState, useEffect } from 'react';
-import PlayerList from './components/PlayerList';
-import BattleList from './components/BattleList';
-import PromptList from './components/PromptList';
+import PlayerList from './PlayerList';
+import BattleList from './BattleList';
+import PromptList from './PromptList';
 
-function App() {
-  // Initialize activeTab from URL hash or default to 'players'
+export function Leaderboard() {
+  // const [isLoading, setIsLoading] = useState(true)
   const [activeTab, setActiveTab] = useState(() => {
     const hash = window.location.hash.slice(1);
     return ['players', 'battles', 'prompts'].includes(hash) ? hash : 'players';
   });
 
-  // Update URL hash when tab changes
   useEffect(() => {
     window.location.hash = activeTab;
   }, [activeTab]);
@@ -25,7 +25,6 @@ function App() {
         setActiveTab(hash);
       }
     };
-
     window.addEventListener('hashchange', handleHashChange);
     return () => window.removeEventListener('hashchange', handleHashChange);
   }, []);
@@ -70,7 +69,5 @@ function App() {
         {renderContent()}
       </div>
     </div>
-  );
-}
-
-export default App; 
+  )
+} 
