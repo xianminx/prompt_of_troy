@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { PromptService } from "../services/index";
 import { InteractionResponseType, InteractionResponseFlags } from "discord-interactions";
-import { ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
+// import { ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
 
 interface PromptCommandOption {
     type: number;
@@ -131,29 +131,29 @@ async function handlePromptList(req: NextRequest) {
 
         // Create one action row per prompt
         const actionRows = prompts.map((p, i) => {
-            const label = `<@${p.createdBy}>/${p.type}/${p.codeName}`
-            const button = new ButtonBuilder()
-                .setCustomId(`battle_${p.id}`)
-                .setLabel(`Battle ${label}`)
-                .setStyle(ButtonStyle.Primary);
+            // const label = `<@${p.createdBy}>/${p.type}/${p.codeName}`
+            // const button = new ButtonBuilder()
+            //     .setCustomId(`battle_${p.id}`)
+            //     .setLabel(`Battle ${label}`)
+            //     .setStyle(ButtonStyle.Primary);
 
-            const row = new ActionRowBuilder<ButtonBuilder>()
-                .addComponents(button);
+            // const row = new ActionRowBuilder<ButtonBuilder>()
+            //     .addComponents(button);
 
             return {
                 content: `${i + 1}. <@${p.createdBy}>/${p.type}/${p.codeName}`,
-                row
+                // row
             };
         });
 
         const content = actionRows.map(item => item.content).join('\n');
-        const components = actionRows.map(item => item.row);
+        // const components = actionRows.map(item => item.row);
 
         return NextResponse.json({
             type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
             data: {
                 content: `Prompts:\n${content}`,
-                components: components
+                // components: components
             },
         });
     } catch (error) {
