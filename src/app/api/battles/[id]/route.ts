@@ -1,10 +1,9 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { BattleService } from '@/services/BattleService';
 
 const battleService = new BattleService();
 
 export async function GET(
-    _request: NextRequest,
     { params }: { params: { id: string } }
 ) {
     try {

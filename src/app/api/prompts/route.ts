@@ -1,9 +1,9 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { PromptService } from '@/services/PromptService';
 
 const promptService = new PromptService();
 
-export async function GET(_request: NextRequest) {
+export async function GET() {
     try {
         const prompts = await promptService.getAll();
         return NextResponse.json(prompts);

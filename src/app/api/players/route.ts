@@ -3,7 +3,7 @@ import { PlayerService } from '@/services/PlayerService';
 
 const playerService = new PlayerService();
 
-export async function GET(_request: NextRequest) {
+export async function GET() {
     try {
         const players = await playerService.getAll();
         return NextResponse.json(players);

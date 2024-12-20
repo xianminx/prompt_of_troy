@@ -1,10 +1,9 @@
-import { NextRequest, NextResponse } from "next/server";
+import {  NextResponse } from "next/server";
 import { PlayerService } from '@/services/PlayerService';
 
 const playerService = new PlayerService();
 
 export async function GET(
-    _request: NextRequest,
     { params }: { params: { id: string } }
 ) {
     try {
