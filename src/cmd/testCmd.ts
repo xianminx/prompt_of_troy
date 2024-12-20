@@ -1,7 +1,7 @@
 import { InteractionResponseType } from "discord-interactions";
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 
-async function handleTestCmd(_req: NextRequest) {
+async function handleTestCmd() {
     return NextResponse.json({
         type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
         data: { content: "``` This is a message to <@947726501976113222> ```" },

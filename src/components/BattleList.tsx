@@ -39,8 +39,8 @@ function BattleList() {
     fetchBattles();
   }, []);
 
-  if (loading) return <div className="text-center p-4">Loading...</div>;
-  if (error) return <div className="text-red-500 p-4">{error}</div>;
+  if (loading) return (<div className="text-center p-4">Loading...</div>);
+  if (error) return (<div className="text-red-500 p-4">{error}</div>);
 
   return (
     <div className="overflow-x-auto bg-white rounded-lg shadow">
