@@ -17,11 +17,11 @@ const app = express();
 const PORT: number = process.env.PORT ? parseInt(process.env.PORT) : 3000;
 
 app.use(express.json());
-app.use(express.static(path.join(__dirname, '../dist/public')));
+app.use(express.static(path.join(__dirname, '../public')));
 
 // Add route for home page
 app.get('/web', (req: Request, res: Response) => {
-    res.sendFile(path.join(__dirname, '../dist/public/index.html'));
+    res.sendFile(path.join(__dirname, '../public/index.html'));
 });
 
 // Add the prompts API router

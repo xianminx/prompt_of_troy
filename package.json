@@ -8,17 +8,18 @@
     "node": ">=18.x"
   },
   "scripts": {
-    "start": "node dist/app.js",
-    "start:prod": "NODE_ENV=prod node dist/app.js",
+    "start": "node dist/src/app.js",
+    "start:prod": "NODE_ENV=prod node dist/src/app.js",
     "dev": "NODE_ENV=prod nodemon",
-    "build": "tsc --project tsconfig.json && tsc-alias -p tsconfig.json",
+    "build:server": "tsc --project tsconfig.json && tsc-alias -p tsconfig.json",
+    "build:frontend": "vite build",
+    "build": "rm -rf dist && concurrently \"npm run build:server\" \"npm run build:frontend\"",
     "db:generate": "npx drizzle-kit generate",
     "db:migrate": "npx drizzle-kit migrate",
     "discord:register": "ts-node src/discordInstall/commands.ts",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
-    "build:frontend": "vite build",
     "dev:frontend": "vite",
     "preview:frontend": "vite preview"
   },

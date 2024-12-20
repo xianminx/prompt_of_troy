@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { SelectPrompt } from '../db';
+import { type SelectPrompt } from '../../src/db';
 
 const PromptsPage: React.FC = () => {
     const [prompts, setPrompts] = useState<SelectPrompt[]>([]);
