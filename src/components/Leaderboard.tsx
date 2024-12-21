@@ -48,9 +48,9 @@ export function Leaderboard() {
   };
 
   return (
-    <div className="app">
-      <h2 className="text-3xl font-bold mb-6 text-center">Leaderboard</h2>
-      <div className="tabs">
+    <div className="w-full max-w-[800px] mx-auto">
+      <h2 className="text-3xl font-bold mb-4 text-center">Leaderboard</h2>
+      <div className="tabs w-full mb-6">
         <button 
           className={`tab ${activeTab === 'players' ? 'active' : ''}`}
           onClick={() => setActiveTab('players')}
@@ -70,7 +70,7 @@ export function Leaderboard() {
           Prompts
         </button>
       </div>
-      <div>
+      <div className="min-w-[300px] w-full">
         {renderContent()}
       </div>
     </div>
