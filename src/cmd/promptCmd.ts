@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { PromptService } from "../services/index";
 import { InteractionResponseType, InteractionResponseFlags } from "discord-interactions";
 // import { ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
