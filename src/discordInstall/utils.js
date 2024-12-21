@@ -23,6 +23,7 @@ export async function DiscordRequest(endpoint, options) {
 }
 
 export async function InstallGlobalCommands(appId, commands) {
+  console.log("commands", commands);
   // API endpoint to overwrite global commands
   const endpoint = `applications/${appId}/commands`;
 

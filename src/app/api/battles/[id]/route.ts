@@ -2,12 +2,11 @@ import { NextRequest, NextResponse } from "next/server";
 import { BattleService } from '@/services/BattleService';
 
 const battleService = new BattleService();
-
-export async function GET(_req: NextRequest,
-    { params }: { params: { id: string } }
-) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
     try {
-        const battle = await battleService.getById(params.id);
+        const id = (await params).id;
+
+        const battle = await battleService.getById(id);
         if (!battle) {
             return NextResponse.json(
                 { error: 'Battle not found' },

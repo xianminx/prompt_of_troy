@@ -47,6 +47,7 @@ export async function GlobalCommands() {
     if (commands.length <= 0) {
       return <p className="pt-6">No commands found :(</p>
     }
+    
     console.log(commands);
 
     return (
@@ -85,7 +86,7 @@ export async function GlobalCommands() {
     return (
       <div>
         <p>Failed to get commands for your Discord app. Make sure your environment variables are set up correctly!</p>
-        <p>{error}</p>
+        <p style={{ color: 'red' }}>{error instanceof Error ? error.message : ''}</p>
       </div>
     )
   }

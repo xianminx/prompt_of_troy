@@ -7,11 +7,16 @@ import BattleList from './BattleList';
 import PromptList from './PromptList';
 
 export function Leaderboard() {
-  // const [isLoading, setIsLoading] = useState(true)
-  const [activeTab, setActiveTab] = useState(() => {
+  // Initialize with default tab
+  const [activeTab, setActiveTab] = useState('players');
+  
+  // Move window-dependent logic to useEffect
+  useEffect(() => {
     const hash = window.location.hash.slice(1);
-    return ['players', 'battles', 'prompts'].includes(hash) ? hash : 'players';
-  });
+    if (['players', 'battles', 'prompts'].includes(hash)) {
+      setActiveTab(hash);
+    }
+  }, []);
 
   useEffect(() => {
     window.location.hash = activeTab;

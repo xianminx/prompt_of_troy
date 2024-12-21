@@ -1,13 +1,13 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { PromptService } from '@/services/PromptService';
 
 const promptService = new PromptService();
 
-export async function GET(
-    { params }: { params: { id: string } }
-) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
     try {
-        const prompt = await promptService.getById(params.id);
+        
+        const id = (await params).id;
+        const prompt = await promptService.getById(id);
         if (!prompt) {
             return NextResponse.json(
                 { error: 'Prompt not found' },

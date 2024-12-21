@@ -56,12 +56,12 @@ function BattleList() {
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                 <div className={`truncate max-w-[250px] ${battle.winner === battle.attackerId ? 'font-bold text-green-600' : ''}`}>
-                  @{battle.attackPrompt.createdBy}/attack/{battle.attackPrompt.codeName}
+                  @{battle.attackerId}/attack/{battle.attackPromptId}
                 </div>
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                 <div className={`truncate max-w-[250px] ${battle.winner === battle.defenderId ? 'font-bold text-green-600' : ''}`}>
-                   @{battle.defendPrompt.createdBy}/defend/{battle.defendPrompt.codeName}
+                   @{battle.defenderId}/defend/{battle.defendPromptId}
                 </div>
               </td>
             </tr>

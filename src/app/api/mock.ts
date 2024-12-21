@@ -1,4 +1,4 @@
-import { SelectPrompt as Prompt, SelectBattle as Battle, SelectPlayer as Player } from "src/db";
+import { SelectPrompt as Prompt, SelectBattle as Battle, SelectPlayer as Player } from "../../db";
 
 
 
