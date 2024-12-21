@@ -1,13 +1,37 @@
 import {
     InteractionResponseType,
     InteractionType,
+    verifyKey,
 } from "discord-interactions";
 import { NextRequest, NextResponse } from "next/server";
 import { handleCommand, handleComponentInteraction } from "@/cmd/index";
 
+
 export async function POST(request: NextRequest) {
-    const body = await request.json();
-    const { type } = body;
+
+    const signature = request.headers.get("x-signature-ed25519");
+    const timestamp = request.headers.get("x-signature-timestamp");
+    const body = await request.text()
+
+
+    if (!signature || !timestamp || !body) {
+        console.error("verifyInteraction missing required headers");
+        return NextResponse.json(
+            { error: "Missing required headers" },
+            { status: 401 }
+        );
+    }
+
+    const isValid = await verifyKey(body, signature, timestamp, process.env.DISCORD_PUBLIC_KEY!);
+    if (!isValid) {
+        console.error("verifyInteraction invalid request signature");
+        return NextResponse.json(
+            { error: "Invalid request signature" },
+            { status: 401 }
+        );
+    }
+
+    const { type } = JSON.parse(body);
 
     try {
         if (type === InteractionType.PING) {
