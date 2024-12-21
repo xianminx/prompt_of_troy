@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from "next/server";
 import { PromptService } from "../services/index";
 import { InteractionResponseType, InteractionResponseFlags } from "discord-interactions";
@@ -82,9 +83,8 @@ const PROMPT_COMMAND: PromptCommand = {
 
 const promptService = new PromptService();
 
-async function handlePromptCmd(req: NextRequest) {
+async function handlePromptCmd(body: any) {
     try {
-        const body = await req.json();
         const options = body.data.options;
         if (!options || options.length === 0) {
             throw new Error("No subcommand provided");
@@ -93,11 +93,11 @@ async function handlePromptCmd(req: NextRequest) {
         const subcommand = options[0].name;
         switch (subcommand) {
             case "list":
-                return await handlePromptList(req);
+                return await handlePromptList(body);
             case "create":
-                return await handlePromptCreate(req);
+                return await handlePromptCreate(body);
             case "delete":
-                return await handlePromptDelete(req);
+                return await handlePromptDelete(body);
             default:
                 throw new Error("Invalid subcommand");
         }
@@ -107,7 +107,7 @@ async function handlePromptCmd(req: NextRequest) {
     }
 }
 
-async function handlePromptList(req: NextRequest) {
+async function handlePromptList(body: any) {
     const NO_PROMPTS_MESSAGE = "No matching prompts found. Expected formats:\n" +
                 "/prompt list <query>\n" +
                 '- "attack"(a) or "defend"(d)\n' +
@@ -115,7 +115,6 @@ async function handlePromptList(req: NextRequest) {
                 "- <@userId>/attack(a) or <@userId>/defend(d)\n" +
                 "- <@userId>/attack(a)/codename or <@userId>/defend(d)/codename"
     try {
-        const body = await req.json();
         const query = body.data.options[0]?.options?.[0]?.value;
         console.log("query: ", query);
         const prompts = await promptService.getAll(query);
@@ -162,9 +161,8 @@ async function handlePromptList(req: NextRequest) {
     }
 }
 
-async function handlePromptCreate(req: NextRequest) {
+async function handlePromptCreate(body: any) {
     try {
-        const body = await req.json();
         const user = body.context === 0 ? body.member.user : body.user;
         if (!user) {
             throw new Error("User information not found");
@@ -203,9 +201,8 @@ async function handlePromptCreate(req: NextRequest) {
     }
 }
 
-async function handlePromptDelete(req: NextRequest) {
+async function handlePromptDelete(body: any) {
     try {
-        const body = await req.json();
         const promptId = body.data.options[0]?.options[0]?.value;
         if (!promptId) {
             throw new Error("No prompt ID provided");

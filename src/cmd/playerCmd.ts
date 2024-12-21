@@ -1,8 +1,8 @@
-import { NextRequest, NextResponse } from "next/server";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { NextResponse } from "next/server";
 import { InteractionResponseType } from "discord-interactions";
 
-async function handlePlayerCmd(req: NextRequest) {
-    const body = await req.json();
+async function handlePlayerCmd(body: any) {
     console.log("body", body);
     
     return NextResponse.json({

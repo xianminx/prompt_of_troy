@@ -1,9 +1,10 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { BattleService } from "../services/index";
 import {
     InteractionResponseType,
     InteractionResponseFlags,
 } from "discord-interactions";
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 
 const battleService = new BattleService();
 
@@ -49,16 +50,15 @@ const BATTLE_COMMAND = {
     contexts: [0, 1, 2],
 };
 
-async function handleBattleCmd(req: NextRequest) {
+async function handleBattleCmd(body: any) {
     try {
-        const body = await req.json();
         const subcommand = body.data.options[0].name;
 
         switch (subcommand) {
             case "start":
-                return handleBattleStart(req);
+                return handleBattleStart(body);
             case "list":
-                return handleBattleList(req);
+                return handleBattleList(body);
             default:
                 throw new Error("Invalid subcommand");
         }
@@ -89,11 +89,8 @@ async function sendMessageToDiscord(channelId: string, content: string) {
     return response.json();
 }
 
-async function handleBattleStart(req: NextRequest) {
+async function handleBattleStart(body: any) {
     try {
-        const body = await req.json();
-        console.log("body", body);
-
         const red = body.data.options[0].options[0].value;
         const blue = body.data.options[0].options[1].value;
         let battle = await battleService.create(red, blue);
@@ -130,9 +127,8 @@ async function handleBattleStart(req: NextRequest) {
     }
 }
 
-async function handleBattleList(req: NextRequest) {
+async function handleBattleList(body: any) {
     try {
-        const body = await req.json();
         const query = body.data.options[0]?.options?.[0]?.value;
         const battles = await battleService.getAll(query);
 
