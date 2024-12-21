@@ -1,22 +1,18 @@
 import OpenAI from "openai";
 
-import { PromptService } from "./PromptService";
-import { PlayerService } from "./PlayerService";
 import {
-    type SelectPrompt as Prompt,
-    type SelectPlayer as Player,
     type SelectBattle as Battle,
-    getPromptById,
     findBattles,
-    getAllPrompts,
-    insertPrompt,
-    deletePrompt,
     getBattleById,
-    insertBattle,
     getPlayerById,
-    updateBattle,
+    getPromptById,
+    insertBattle,
+    type SelectPrompt as Prompt,
+    updateBattle
 } from "../db/index";
 import { generateSecretKey } from "../utils/secretKeyGenerator";
+import { PlayerService } from "./PlayerService";
+import { PromptService } from "./PromptService";
 
 const MODEL = "gpt-4o-mini";
 const ELO_K = 32;

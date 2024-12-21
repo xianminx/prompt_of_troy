@@ -17,7 +17,7 @@ async function handleCommand(req: NextRequest) {
     const { name } = body.data;
 
     if (name === CMD.TEST) {
-        return await handleTestCmd(req);
+        return await handleTestCmd();
     } else if (name === CMD.PROMPT) {
         return await handlePromptCmd(req);
     } else if (name === CMD.BATTLE) {
@@ -47,8 +47,6 @@ async function handleComponentInteraction(req: NextRequest) {
             },
         });
     }
-
-    // ... other component handlers
 }
 
 export { handleCommand, handleComponentInteraction };

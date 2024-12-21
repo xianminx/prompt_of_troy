@@ -85,6 +85,7 @@ export async function GlobalCommands() {
     return (
       <div>
         <p>Failed to get commands for your Discord app. Make sure your environment variables are set up correctly!</p>
+        <p>{error}</p>
       </div>
     )
   }

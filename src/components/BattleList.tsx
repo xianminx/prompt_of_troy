@@ -1,21 +1,5 @@
 import React, { useEffect, useState } from 'react';
-
-interface Battle {
-  id: string;
-  player1Id: string;
-  player2Id: string;
-  winnerId: string | null;
-  player1Name: string;
-  player2Name: string;
-  createdAt: string;
-  prompt: string;
-  attackPrompt: any;
-  defendPrompt: any;
-  status: string;
-  winner: string;
-  attackerId: string;
-  defenderId: string;
-}
+import { type SelectBattle as Battle } from '../db/index';
 
 function BattleList() {
   const [battles, setBattles] = useState<Battle[]>([]);

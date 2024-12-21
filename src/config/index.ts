@@ -2,7 +2,7 @@ import dotenv from 'dotenv';
 import path from 'path';
 
 // Load environment-specific .env file
-const envFileName = `.env.${process.env.NODE_ENV || 'dev'}`;
+const envFileName = `.env.${process.env.NODE_ENV || 'development'}`;
 const envFile = path.resolve(process.cwd(), envFileName);
 
 console.log(`Loading environment file: ${envFile}`);
@@ -15,6 +15,6 @@ export const config = {
         key: process.env.SUPABASE_KEY,
         serviceRole: process.env.SUPABASE_SERVICE_ROLE,
     },
-    isProduction: process.env.NODE_ENV === 'prod',
-    isDevelopment: process.env.NODE_ENV === 'dev',
+    isProduction: process.env.NODE_ENV === 'production',
+    isDevelopment: process.env.NODE_ENV === 'development',
 }; 

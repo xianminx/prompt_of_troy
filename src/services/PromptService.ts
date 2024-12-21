@@ -1,6 +1,6 @@
-import { PlayerService } from "./PlayerService";
-import { type SelectPrompt as Prompt, type SelectPlayer as Player, getPromptById, getAllPrompts, insertPrompt   , deletePrompt } from "../db/index";
+import { type SelectPrompt as Prompt, deletePrompt, getAllPrompts, getPromptById, insertPrompt } from "../db/index";
 import { generateCodeName } from "../utils/codeName";
+import { PlayerService } from "./PlayerService";
 
 interface PromptQuery {
     type?: 'attack' | 'defend';

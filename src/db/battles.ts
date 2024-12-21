@@ -1,7 +1,7 @@
-import { db } from "./index";
-import { battlesTable } from "./schema";
 import { eq } from "drizzle-orm";
 import type { BattleQuery } from "../services/BattleService";
+import { db } from "./index";
+import { battlesTable } from "./schema";
 
 export async function updateStatus(
     id: string,
@@ -35,10 +35,14 @@ export async function updateBattleResult(
 }
 
 export async function findBattles(query?: BattleQuery) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let baseQuery: any = db.select().from(battlesTable);
+
     if (query) {
         if (query.status) {
-            baseQuery = baseQuery.where(eq(battlesTable.status, query.status));
+            baseQuery = baseQuery.where(
+                eq(battlesTable.status, query.status)
+            );
         }
 
         if (query.limit) {

@@ -35,6 +35,7 @@ interface PromptQuery {
 }
 
 export async function getAllPrompts(query?: PromptQuery) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let baseQuery: any = db.select().from(promptsTable);
 
     if (query) {

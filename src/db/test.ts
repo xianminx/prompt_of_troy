@@ -1,4 +1,4 @@
-import { db, insertPlayer, insertPrompt, getAllPlayers, getAllPrompts } from './index.js';
+import { insertPlayer, insertPrompt, getAllPlayers, getAllPrompts } from './index.js';
 
 async function main() {
     await insertPlayer({ id: '34759235', name: 'John Doe'});

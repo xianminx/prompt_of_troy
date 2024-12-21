@@ -2,8 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { InteractionResponseType } from "discord-interactions";
 
 async function handlePlayerCmd(req: NextRequest) {
-    // const body = await req.json();
-    // Add your player command logic here
+    const body = await req.json();
+    console.log("body", body);
     
     return NextResponse.json({
         type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
