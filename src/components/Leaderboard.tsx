@@ -49,7 +49,7 @@ export function Leaderboard() {
 
   return (
     <div className="app">
-      <h1 className="text-3xl font-bold mb-6">Prompt of Troy Leaderboard</h1>
+      <h2 className="text-3xl font-bold mb-6 text-center">Leaderboard</h2>
       <div className="tabs">
         <button 
           className={`tab ${activeTab === 'players' ? 'active' : ''}`}
