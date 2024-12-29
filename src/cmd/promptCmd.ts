@@ -81,8 +81,6 @@ const PROMPT_COMMAND: PromptCommand = {
     contexts: [0, 1, 2]
 };
 
-const promptService = new PromptService();
-
 async function handlePromptCmd(body: any) {
     try {
         const options = body.data.options;
@@ -117,7 +115,7 @@ async function handlePromptList(body: any) {
     try {
         const query = body.data.options[0]?.options?.[0]?.value;
         console.log("query: ", query);
-        const prompts = await promptService.getAll(query);
+        const prompts = await PromptService.getInstance().getAll(query);
         
         if (prompts.length === 0) {
             return NextResponse.json({
@@ -184,7 +182,7 @@ async function handlePromptCreate(body: any) {
             throw new Error("Missing required fields: type and content are required");
         }
 
-        const prompt = await promptService.create(userId, type, content);
+        const prompt = await PromptService.getInstance().create(userId, type, content);
         console.log("createPrompt: ", { userId, type, content });
 
         return NextResponse.json({
@@ -208,7 +206,7 @@ async function handlePromptDelete(body: any) {
             throw new Error("No prompt ID provided");
         }
 
-        await promptService.delete(promptId);
+        await PromptService.getInstance().delete(promptId);
         return NextResponse.json({
             type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
             data: { content: `Deleted prompt with ID: ${promptId}` },

@@ -1,7 +1,8 @@
 import { eq } from "drizzle-orm";
-import type { BattleQuery } from "../services/BattleService";
+import type { BattleQuery } from "../types/battle";
 import { db } from "./index";
 import { battlesTable } from "./schema";
+import { sql } from 'drizzle-orm';
 
 export async function updateStatus(
     id: string,
@@ -35,6 +36,13 @@ export async function updateBattleResult(
 }
 
 export async function findBattles(query?: BattleQuery) {
+    if (query?.count) {
+        const result = await db
+            .select({ count: sql<number>`count(*)` })
+            .from(battlesTable);
+        return Number(result[0].count);
+    }
+
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let baseQuery: any = db.select().from(battlesTable);
 
@@ -42,6 +50,12 @@ export async function findBattles(query?: BattleQuery) {
         if (query.status) {
             baseQuery = baseQuery.where(
                 eq(battlesTable.status, query.status)
+            );
+        }
+
+        if (query.orderBy) {
+            baseQuery = baseQuery.orderBy(
+                sql`${battlesTable[query.orderBy.field]} ${sql.raw(query.orderBy.direction)}`
             );
         }
 

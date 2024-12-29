@@ -17,3 +17,5 @@ export * from './queries/update';
 export * from './queries/delete';
 export * from './queries/select';
 export * from './battles';
+export * from './prompts';
+export * from './players';

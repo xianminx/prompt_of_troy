@@ -2,9 +2,78 @@ import { getPlayerById, insertPlayer, type SelectPlayer, getAllPlayers } from ".
 import { db } from '../db';
 import { eq } from 'drizzle-orm';
 import { playersTable } from '../db/schema';
+import { findPlayers } from '../db/players';
+import { type SortDirection, type SortableFields } from '../types/player';
+
+interface DiscordUser {
+    username: string;
+    id: string;
+    // add other Discord user fields as needed
+}
 
 export class PlayerService {
-    async create(userId: string, name: string = `Player_${userId}`) {
+    private static instance: PlayerService | null = null;
+
+    private constructor() {
+        // private constructor
+    }
+
+    public static getInstance(): PlayerService {
+        if (!PlayerService.instance) {
+            PlayerService.instance = new PlayerService();
+        }
+        return PlayerService.instance;
+    }
+
+    public static resetInstance(): void {
+        PlayerService.instance = null;
+    }
+
+    async getAll() {
+        const players = await getAllPlayers();
+        const discordUsers = await Promise.all(players.map(player => this.getByDiscordId(player.id)));
+        return players.map((player, index) => ({ ...player, ...discordUsers[index] }));
+    }
+
+    async getPaginated(
+        page: number = 1, 
+        limit: number = 10,
+        sortBy: SortableFields = 'rating',
+        sortDirection: SortDirection = 'desc'
+    ) {
+        const offset = (page - 1) * limit;
+        const [players, total] = await Promise.all([
+            findPlayers({
+                limit,
+                offset,
+                orderBy: {
+                    field: sortBy,
+                    direction: sortDirection
+                }
+            }),
+            findPlayers({ count: true })
+        ]);
+
+        const totalCount = typeof total === 'number' ? total : total.length;
+
+        return {
+            players,
+            total: totalCount,
+            pagination: {
+                page,
+                limit,
+                totalPages: Math.ceil(totalCount / limit)
+            }
+        };
+    }
+
+    async create(userId: string, name?: string ) {
+        // If name is empty, fetch Discord user info and use their username
+        if (!name) {
+            const discordUser = await this.getByDiscordId(userId);
+            name = discordUser?.username || '';
+        }
+
         const player = await insertPlayer({
             id: userId,
             name,
@@ -12,15 +81,30 @@ export class PlayerService {
         });
         return player;
     }
+
     async getById(id: string): Promise<SelectPlayer | null> {
         const player = await getPlayerById(id);
-        return player;
+        const discordUser = await this.getByDiscordId(id);
+        
+        return {...player, ...discordUser};
     }
-    async getAll() {
-        const players = await getAllPlayers();
-        return players;
+
+    async getByDiscordId(discordId: string): Promise<DiscordUser | null> {
+        const response = await fetch(`https://discord.com/api/v10/users/${discordId}`, {
+            headers: {
+                'Authorization': `Bot ${process.env.DISCORD_TOKEN}`
+            }
+        });
+
+        if (!response.ok) {
+            console.error('Failed to fetch Discord user');
+            return null;
+        }
+
+        const discordUser = await response.json();
+        return discordUser;
     }
-    
+
     async updateRating(playerId: string, newRating: number): Promise<void> {
         await db.update(playersTable)
             .set({ rating: newRating })

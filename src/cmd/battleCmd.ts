@@ -6,8 +6,6 @@ import {
 } from "discord-interactions";
 import { NextResponse } from "next/server";
 
-const battleService = new BattleService();
-
 const BATTLE_COMMAND = {
     name: "battle",
     description: "Battle commands",
@@ -93,7 +91,7 @@ async function handleBattleStart(body: any) {
     try {
         const red = body.data.options[0].options[0].value;
         const blue = body.data.options[0].options[1].value;
-        let battle = await battleService.create(red, blue);
+        let battle = await BattleService.getInstance().create(red, blue);
         const channelId = body?.channel_id; // Discord interaction payload should contain channel_id
 
         // TODO: should send start message to discord first and then launch battle, and then update the message
@@ -107,7 +105,7 @@ async function handleBattleStart(body: any) {
         const message = `⚔️ Battle/${battle.id} started! ${battle.status}\n 🗡️ ${battle.attackPromptId} 🆚 🛡️ ${battle.defendPromptId}`;
 
         const discordMessage = await sendMessageToDiscord(channelId, message);
-        battle = await battleService.runBattle(battle.id);
+        battle = await BattleService.getInstance().runBattle(battle.id);
 
         return NextResponse.json({
             type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
@@ -130,7 +128,7 @@ async function handleBattleStart(body: any) {
 async function handleBattleList(body: any) {
     try {
         const query = body.data.options[0]?.options?.[0]?.value;
-        const battles = await battleService.getAll(query);
+        const battles = await BattleService.getInstance().getAll(query);
 
         const battleTable = [
             "| Battle | Status | Winner |",

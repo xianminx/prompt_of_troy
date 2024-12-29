@@ -1,12 +1,39 @@
 import { NextResponse } from "next/server";
 import { PromptService } from '@/services/PromptService';
+import { NextRequest } from "next/server";
+import { type SortableFields, type SortDirection } from "@/types/prompt";
 
-const promptService = new PromptService();
-
-export async function GET() {
+export async function GET(request: NextRequest) {
     try {
-        const prompts = await promptService.getAll();
-        return NextResponse.json(prompts);
+        // Get pagination parameters from URL
+        const searchParams = request.nextUrl.searchParams;
+        const page = parseInt(searchParams.get('page') || '1');
+        const limit = parseInt(searchParams.get('limit') || '10');
+        const sortBy = searchParams.get('sortBy') as SortableFields || 'createdAt';
+        const sortDirection = searchParams.get('sortDirection') as SortDirection || 'desc';
+        const createdBy = searchParams.get('createdBy') || undefined;
+        const codeName = searchParams.get('codeName') || undefined;
+        const type = searchParams.get('type') as 'attack' | 'defend' | undefined;
+
+        const { prompts, total } = await PromptService.getInstance().getPaginated(
+            page,
+            limit,
+            sortBy,
+            sortDirection,
+            createdBy,
+            codeName,
+            type
+        );
+        
+        return NextResponse.json({
+            prompts,
+            pagination: {
+                total,
+                page,
+                limit,
+                totalPages: Math.ceil(total / limit)
+            }
+        });
     } catch (error) {
         console.error('Error fetching prompts:', error);
         return NextResponse.json(
@@ -15,18 +42,3 @@ export async function GET() {
         );
     }
 }
-
-// export async function POST(request: NextRequest) {
-//     try {
-//         const body = await request.json();
-//         const {userId, type, content} = body;
-//         const prompt = await promptService.create(userId, type, content);
-//         return NextResponse.json(prompt, { status: 201 });
-//     } catch (error) {
-//         console.error('Error creating prompt:', error);
-//         return NextResponse.json(
-//             { error: 'Failed to create prompt' },
-//             { status: 500 }
-//         );
-//     }
-// }

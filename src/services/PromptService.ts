@@ -1,62 +1,65 @@
-import { type SelectPrompt as Prompt, deletePrompt, getAllPrompts, getPromptById, insertPrompt } from "../db/index";
+import { type Prompt, type PaginatedPrompts, type SortableFields, type SortDirection, PromptQuery } from "../types/prompt";
+import { deletePrompt, findPrompts, getPromptById, insertPrompt } from "../db/index";
 import { generateCodeName } from "../utils/codeName";
 import { PlayerService } from "./PlayerService";
 
-interface PromptQuery {
-    type?: 'attack' | 'defend';
-    createdBy?: string;
-    codeName?: string;
-}
-
 export class PromptService {
+    private static instance: PromptService | null = null;
     private playerService: PlayerService;
 
-    constructor() {
-        this.playerService = new PlayerService();
+    private constructor() {
+        this.playerService = PlayerService.getInstance();
+    }
+
+    public static getInstance(): PromptService {
+        if (!PromptService.instance) {
+            PromptService.instance = new PromptService();
+        }
+        return PromptService.instance;
+    }
+
+    public static resetInstance(): void {
+        PromptService.instance = null;
     }
 
     async getById(id: string): Promise<Prompt | null> {
         return await getPromptById(id);
     }
 
-    async getAll(queryString?: string): Promise<Prompt[]> {
+    async getPaginated(
+        page: number = 1, 
+        limit: number = 10,
+        sortBy: SortableFields = 'createdAt',
+        sortDirection: SortDirection = 'desc',
+        createdBy?: string,
+        codeName?: string,
+        type?: 'attack' | 'defend'
+    ): Promise<PaginatedPrompts> {
         try {
-            // Parse query string into structured query
-            const query: PromptQuery = {};
-            
-            if (queryString) {
-                // Handle user ID format: <@userId>
-                if (queryString.startsWith('<@') && queryString.endsWith('>')) {
-                    query.createdBy = queryString.slice(2, -1);
+            const query: PromptQuery = {
+                limit,
+                offset: (page - 1) * limit,
+                orderBy: {
+                    field: sortBy,
+                    direction: sortDirection
                 }
-                // Handle type queries
-                else if (['attack', 'a'].includes(queryString.toLowerCase())) {
-                    query.type = 'attack';
-                }
-                else if (['defend', 'd'].includes(queryString.toLowerCase())) {
-                    query.type = 'defend';
-                }
-                // Handle combined format: <@userId>/type
-                else if (queryString.includes('/')) {
-                    const [userId, type, codeName] = queryString.split('/');
-                    if (userId.startsWith('<@') && userId.endsWith('>')) {
-                        query.createdBy = userId.slice(2, -1);
-                    }
-                    if (type) {
-                        query.type = type.toLowerCase() === 'a' || type.toLowerCase() === 'attack' 
-                            ? 'attack' 
-                            : type.toLowerCase() === 'd' || type.toLowerCase() === 'defend'
-                                ? 'defend'
-                                : undefined;
-                    }
-                    if (codeName) {
-                        query.codeName = codeName;
-                    }
-                }
-            }
+            };
 
-            const prompts = await getAllPrompts(query);
-            return prompts;
+            // Add optional filters if they exist
+            if (createdBy) query.createdBy = createdBy;
+            if (codeName) query.codeName = codeName;
+            if (type) query.type = type;
+            
+            // Run both queries in parallel using Promise.all
+            const [prompts, total] = await Promise.all([
+                findPrompts(query),
+                findPrompts({ count: true })
+            ]);
+
+            return {
+                prompts,
+                total: typeof total === 'number' ? total : total.length
+            };
         } catch (error) {
             console.error('Error getting prompts:', error);
             throw new Error('Failed to retrieve prompts');
@@ -87,4 +90,6 @@ export class PromptService {
     async delete(id: string): Promise<void> {
         await deletePrompt(id);
     }
+
+
 } 

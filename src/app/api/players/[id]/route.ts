@@ -1,12 +1,10 @@
-import {  NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { PlayerService } from '@/services/PlayerService';
-
-const playerService = new PlayerService();
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
     try {
         const id = (await params).id;
-        const player = await playerService.getById(id);
+        const player = await PlayerService.getInstance().getById(id);
         if (!player) {
             return NextResponse.json(
                 { error: 'Player not found' },

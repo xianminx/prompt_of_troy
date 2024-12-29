@@ -1,8 +1,14 @@
 import { PlayerService, BattleService, PromptService } from '../src/domain/index.js';
 
-const playerService = new PlayerService();
-const battleService = new BattleService();
-const promptService = new PromptService();
+// Update PlayerService to use singleton
+const playerService = PlayerService.getInstance();
+const battleService = BattleService.getInstance();
+const promptService = PromptService.getInstance();
+
+// Before running tests
+PlayerService.resetInstance();
+BattleService.resetInstance();
+PromptService.resetInstance();
 
 const player = await playerService.getById('player1');
 console.log(player);

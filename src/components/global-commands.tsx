@@ -48,8 +48,6 @@ export async function GlobalCommands() {
       return <p className="pt-6">No commands found :(</p>
     }
     
-    console.log(commands);
-
     return (
       <div className="overflow-x-auto">
         <table className="min-w-full">

@@ -1,7 +1,7 @@
 import OpenAI from "openai";
 
 import {
-    type SelectBattle as Battle,
+    type SelectBattle as BaseBattle,
     findBattles,
     getBattleById,
     getPlayerById,
@@ -13,48 +13,61 @@ import {
 import { generateSecretKey } from "../utils/secretKeyGenerator";
 import { PlayerService } from "./PlayerService";
 import { PromptService } from "./PromptService";
+import { type BattleStatus, type BattleQuery, type RatingChanges } from '../types/battle';
 
 const MODEL = "gpt-4o-mini";
 const ELO_K = 32;
 const MAX_RATING_CHANGE = 50;
 
-export const BATTLE_STATUS = {
+export type Battle = BaseBattle & {
+    attackPrompt?: Prompt | null;
+    defendPrompt?: Prompt | null;
+};
+
+export const BATTLE_STATUS: Record<string, BattleStatus> = {
     PENDING: "pending",
     RUNNING: "running",
     COMPLETED: "completed",
     ERROR: "error",
 };
 
-export interface RatingChanges {
-    attacker: number;
-    defender: number;
-}
-
 interface BattleResult {
     winner: "attack" | "defend";
     content: string;
 }
 
-export interface BattleQuery {
-    limit?: number;
-    offset?: number;
-    status?: (typeof BATTLE_STATUS)[keyof typeof BATTLE_STATUS];
-    createdBy?: string;
-}
 
 export class BattleService {
+    private static instance: BattleService | null = null;
+    
+    private constructor() {
+        this.playerService = PlayerService.getInstance();
+        this.promptService = PromptService.getInstance();
+        this.openai = new OpenAI();
+    }
+
+    public static getInstance(): BattleService {
+        if (!BattleService.instance) {
+            BattleService.instance = new BattleService();
+        }
+        return BattleService.instance;
+    }
+
     private promptService: PromptService;
     private playerService: PlayerService;
     private openai: OpenAI;
 
-    constructor() {
-        this.promptService = new PromptService();
-        this.playerService = new PlayerService();
-        this.openai = new OpenAI();
-    }
-
     async getById(id: string): Promise<Battle | null> {
-        return await getBattleById(id);
+        const battle = await getBattleById(id);
+        if (!battle) {
+            return null;
+        }
+        const [attackPrompt, defendPrompt] = await Promise.all([    
+            this.promptService.getById(battle.attackPromptId),
+            this.promptService.getById(battle.defendPromptId),
+        ]);
+
+        return { ...battle, attackPrompt, defendPrompt };
     }
 
     async create(
@@ -87,15 +100,13 @@ export class BattleService {
 
         if (!attacker) {
             await this.playerService.create(
-                attackPrompt.createdBy,
-                `Player_${attackPrompt.createdBy}`
+                attackPrompt.createdBy
             );
         }
 
         if (!defender) {
             await this.playerService.create(
-                defendPrompt.createdBy,
-                `Player_${defendPrompt.createdBy}`
+                defendPrompt.createdBy
             );
         }
 
@@ -272,5 +283,36 @@ export class BattleService {
             Math.min(change, MAX_RATING_CHANGE),
             -MAX_RATING_CHANGE
         );
+    }
+
+    public static resetInstance(): void {
+        BattleService.instance = null as unknown as BattleService;
+    }
+
+    async getPaginated(
+        page: number = 1, 
+        limit: number = 10,
+        sortBy: SortableFields = 'createdAt',
+        sortDirection: SortDirection = 'desc'
+    ) {
+        const offset = (page - 1) * limit;
+        
+        // Run both queries in parallel using Promise.all
+        const [battles, total] = await Promise.all([
+            findBattles({
+                limit,
+                offset,
+                orderBy: {
+                    field: sortBy,
+                    direction: sortDirection
+                }
+            }),
+            findBattles({ count: true })
+        ]);
+
+        return {
+            battles,
+            total: typeof total === 'number' ? total : total.length
+        };
     }
 }
