@@ -102,19 +102,24 @@ async function handleBattleStart(body: any) {
                 { status: 400 }
             );
         }
+        const { attackPrompt, defendPrompt } = battle;
 
-        const message = `⚔️ Battle/${battle.id} started! ${battle.status}\n 🗡️ ${battle.attackPromptId} 🆚 🛡️ ${battle.defendPromptId}`;
+        const attack = `<@${battle.attackerId}>/attack/${attackPrompt?.codeName}>`;
+        const defend = `<@${battle.defenderId}>/defend/${defendPrompt?.codeName}>`;
+
+        const message = `⚔️ Battle/\`${battle.id}\` started!  🗡️ ${attack} 🆚 🛡️ ${defend}`;
 
         const discordMessage = await sendMessageToDiscord(channelId, message);
         battle = await BattleService.getInstance().runBattle(battle.id);
+
+        const winnerMessage = battle.winner === 'attack' ? `👑${attack} WINS ${defend}` : `👑${defend} WINS ${attack}`;
 
         return NextResponse.json({
             type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
             data: {
                 content: [
-                    `⚔️ Battle/${battle.id} started!  ${battle.status}\n 🗡️ ${battle.attackPromptId} 🆚 🛡️ ${battle.defendPromptId}`,
-                    `Battle/${battle.id} completed! ${battle.status} ${battle.winner}`,
-                ].join("\n\n"),
+                    `⚔️ Battle/\`${battle.id}\` \`${(battle.status||'').toUpperCase()}\`!  ${winnerMessage}`
+                ].join("\n"),
                 messageId: discordMessage.id,
             },
         });

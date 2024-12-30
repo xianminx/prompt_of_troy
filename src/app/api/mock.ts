@@ -47,8 +47,12 @@ export const mockBattles: Battle[] = Array.from({ length: 25 }, (_, i) => {
     const player2 = mockPlayers[player2Index];
     const attackPromptIndex = Math.floor(Math.random() * mockPrompts.length);
     const defendPromptIndex = Math.floor(Math.random() * mockPrompts.length);
-    const winner = Math.random() > 0.5 ? player1.id : player2.id;
+    const winner = Math.random() > 0.5 ? 'attack' : 'defend';
     const ratingChange = Math.floor(Math.random() * 20) + 10; // Rating change between 10-30 points
+    const ratingChanges = {
+        attacker: winner === 'attack' ? { before: player1.rating, after: player1.rating + ratingChange, change: ratingChange } : { before: player1.rating, after: player1.rating - ratingChange, change: -ratingChange },
+        defender: winner === 'defend' ? { before: player2.rating, after: player2.rating + ratingChange, change: ratingChange } : { before: player2.rating, after: player2.rating - ratingChange, change: -ratingChange }
+    };
 
     return {
         id: crypto.randomUUID(),
@@ -61,10 +65,7 @@ export const mockBattles: Battle[] = Array.from({ length: 25 }, (_, i) => {
         status: 'completed',
         winner: winner,
         secret: 'mock-secret',
-        ratingChanges: {
-            [player1.id]: winner === player1.id ? ratingChange : -ratingChange,
-            [player2.id]: winner === player2.id ? ratingChange : -ratingChange
-        },
+        ratingChanges,
         error: null,
         startedAt: new Date(date.getTime() - 1000 * 60 * 5), // 5 minutes before completion
         completedAt: date,

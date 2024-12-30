@@ -5,16 +5,21 @@ import {
     findBattles,
     getBattleById,
     getPlayerById,
-    getPromptById,
     insertBattle,
-    type SelectPrompt as Prompt,
-    updateBattle
+    updateBattle,
 } from "../db/index";
 import { generateSecretKey } from "../utils/secretKeyGenerator";
 import { PlayerService } from "./PlayerService";
 import { PromptService } from "./PromptService";
-import { type BattleStatus, type BattleQuery, type RatingChanges, SortDirection, type BattleSortableFields } from '../types/battle';
-import { PaginatedResponse } from '../types';
+import {
+    type BattleStatus,
+    type BattleQuery,
+    type RatingChanges,
+    SortDirection,
+    type BattleSortableFields,
+} from "../types/battle";
+import { PaginatedResponse } from "../types";
+import { Prompt } from "../types/prompt";
 
 const MODEL = "gpt-4o-mini";
 const ELO_K = 32;
@@ -37,10 +42,9 @@ interface BattleResult {
     content: string;
 }
 
-
 export class BattleService {
     private static instance: BattleService | null = null;
-    
+
     private constructor() {
         this.playerService = PlayerService.getInstance();
         this.promptService = PromptService.getInstance();
@@ -63,7 +67,7 @@ export class BattleService {
         if (!battle) {
             return null;
         }
-        const [attackPrompt, defendPrompt] = await Promise.all([    
+        const [attackPrompt, defendPrompt] = await Promise.all([
             this.promptService.getById(battle.attackPromptId),
             this.promptService.getById(battle.defendPromptId),
         ]);
@@ -75,11 +79,11 @@ export class BattleService {
         attackPromptId: string,
         defendPromptId: string
     ): Promise<Battle> {
-        // Validate prompts exist and have correct types
         const [attackPrompt, defendPrompt] = await Promise.all([
-            getPromptById(attackPromptId),
-            getPromptById(defendPromptId),
+            this.promptService.getById(attackPromptId),
+            this.promptService.getById(defendPromptId),
         ]);
+
 
         if (!attackPrompt || !defendPrompt) {
             throw new Error("Invalid prompts - one or both prompts not found");
@@ -100,15 +104,11 @@ export class BattleService {
         ]);
 
         if (!attacker) {
-            await this.playerService.create(
-                attackPrompt.createdBy
-            );
+            await this.playerService.create(attackPrompt.createdBy);
         }
 
         if (!defender) {
-            await this.playerService.create(
-                defendPrompt.createdBy
-            );
+            await this.playerService.create(defendPrompt.createdBy);
         }
 
         const battle = {
@@ -121,8 +121,9 @@ export class BattleService {
         };
 
         const insertedBattle = await insertBattle(battle);
+        console.log(insertedBattle);
 
-        return insertedBattle;
+        return { ...insertedBattle, attackPrompt, defendPrompt };
     }
 
     async runBattle(battleId: string): Promise<Battle> {
@@ -300,25 +301,25 @@ export class BattleService {
     }
 
     async getPaginated(
-        page: number = 1, 
+        page: number = 1,
         limit: number = 10,
-        sortBy: BattleSortableFields = 'createdAt',
-        sortDirection: SortDirection = 'desc',
+        sortBy: BattleSortableFields = "createdAt",
+        sortDirection: SortDirection = "desc",
         participantId?: string
     ): Promise<PaginatedResponse<Battle>> {
         const offset = (page - 1) * limit;
-        
+
         const [battles, total] = await Promise.all([
             findBattles({
                 limit,
                 offset,
                 orderBy: {
                     field: sortBy,
-                    direction: sortDirection
+                    direction: sortDirection,
                 },
-                participantId
+                participantId,
             }),
-            findBattles({ count: true })
+            findBattles({ count: true }),
         ]);
 
         const totalPages = Math.ceil(total / limit);

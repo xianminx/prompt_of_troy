@@ -24,11 +24,11 @@ export class PromptService {
     }
 
     async getById(id: string): Promise<Prompt | null> {
-        return await getPromptById(id);
+        return getPromptById(id);
     }
 
     async getAll(query?: PromptQuery): Promise<Prompt[]> {
-        return await findPrompts(query);
+        return findPrompts(query);
     }
 
     async getPaginated(
