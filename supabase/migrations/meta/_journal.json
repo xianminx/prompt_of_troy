@@ -22,6 +22,13 @@
       "when": 1734627413056,
       "tag": "0002_windy_wong",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1735554654207,
+      "tag": "0003_military_vector",
+      "breakpoints": true
     }
   ]
 }

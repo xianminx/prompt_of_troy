@@ -1,5 +1,5 @@
 import { type Prompt, type PromptSortableFields, type SortDirection, PromptQuery, PromptType } from "../types/prompt";
-import { deletePrompt, findPrompts, getPromptById, insertPrompt } from "../db/index";
+import { deletePrompt, findPrompts, getPromptById, insertPrompt, updatePrompt } from "../db/index";
 import { generateCodeName } from "../utils/codeName";
 import { PlayerService } from "./PlayerService";
 import { PaginatedResponse } from "@/types";
@@ -102,5 +102,20 @@ export class PromptService {
         await deletePrompt(id);
     }
 
+    async updateRating(promptId: string, newRating: number): Promise<void> {
+        try {
+            // const prompt = await this.getById(promptId);
+            // if (!prompt) {
+            //     throw new Error(`Prompt not found: ${promptId}`);
+            // }
 
+            await updatePrompt(promptId, {
+                rating: newRating,
+                updatedAt: new Date()
+            });
+        } catch (error) {
+            console.error(`Error updating rating for prompt ${promptId}:`, error);
+            throw new Error(`Failed to update prompt rating: ${error instanceof Error ? error.message : 'Unknown error'}`);
+        }
+    }
 } 

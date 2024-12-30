@@ -178,7 +178,7 @@ async function handleBattleStart(body: any) {
         const defend = `<@${battle.defenderId}>\`/defend/${defendPrompt?.codeName}\``;
 
         // First, respond to the interaction with the starting message
-        const battleStartMessage = `⚔️ Battle/\`${battle.id}\` STARTING... \n🗡️ ${attack} 🆚 🛡️ ${defend}`;
+        const battleStartMessage = `⚔️ Battle/\`${battle.id}\` \`STARTING...\` \n🗡️ ${attack}    🆚    🛡️ ${defend}`;
 
         // Send immediate response to Discord to acknowledge the command
         const response = NextResponse.json({

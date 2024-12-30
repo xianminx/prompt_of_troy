@@ -158,8 +158,8 @@ export class BattleService {
 
             // Update ratings
             const ratingChanges = await this._updateRatings(
-                battle.attackerId,
-                battle.defenderId,
+                attackPrompt!,
+                defendPrompt!,
                 result.winner === "attack"
             );
 
@@ -228,22 +228,13 @@ export class BattleService {
     }
 
     private async _updateRatings(
-        attackerId: string,
-        defenderId: string,
+        attackPrompt: Prompt,
+        defendPrompt: Prompt,
         attackerWon: boolean
     ): Promise<RatingChanges> {
-        const [attacker, defender] = await Promise.all([
-            this.playerService.getById(attackerId),
-            this.playerService.getById(defenderId),
-        ]);
-
-        if (!attacker || !defender) {
-            throw new Error("Players not found");
-        }
-
         const expectedScore = this._calculateExpectedScore(
-            attacker.rating,
-            defender.rating
+            attackPrompt.rating,
+            defendPrompt.rating
         );
 
         const actualScore = attackerWon ? 1 : 0;
@@ -255,26 +246,36 @@ export class BattleService {
         const defenderChange = -attackerChange;
         const ratingChanges = {
             attacker: {
-                before: attacker.rating,
-                after: attacker.rating + attackerChange,
+                before: attackPrompt.rating,
+                after: attackPrompt.rating + attackerChange,
                 change: attackerChange,
             },
             defender: {
-                before: defender.rating,
-                after: defender.rating + defenderChange,
+                before: defendPrompt.rating,
+                after: defendPrompt.rating + defenderChange,
                 change: defenderChange,
             },
         };
 
         await Promise.all([
-            this.playerService.updateRating(
-                attackerId,
-                attacker.rating + attackerChange
+            this.promptService.updateRating(
+                attackPrompt.id,
+                attackPrompt.rating + attackerChange
             ),
-            this.playerService.updateRating(
-                defenderId,
-                defender.rating + defenderChange
+            this.promptService.updateRating(
+                defendPrompt.id,
+                defendPrompt.rating + defenderChange
             ),
+            // TODO: update player ratings
+
+            // this.playerService.updateRating(
+            //     attackPrompt.createdBy,
+            //     attackPrompt.rating + attackerChange
+            // ),
+            // this.playerService.updateRating(
+            //     defendPrompt.createdBy,
+            //     defendPrompt.rating + defenderChange
+            // ),
         ]);
 
         return ratingChanges;

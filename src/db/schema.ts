@@ -4,7 +4,7 @@ import { integer, pgTable, text, timestamp, uuid, json } from 'drizzle-orm/pg-co
 export const playersTable = pgTable('players', {
   id: text('id').primaryKey(),
   name: text('name').notNull(),
-  rating: integer('rating').notNull().default(1000),
+  rating: integer('rating').notNull().default(1200),
   wins: integer('wins').notNull().default(0),
   losses: integer('losses').notNull().default(0),
   draws: integer('draws').notNull().default(0),
@@ -19,8 +19,12 @@ export const promptsTable = pgTable('prompts', {
   codeName: text('code_name').notNull(),
   type: text('type').notNull(),
   content: text('content').notNull(),
+  rating: integer('rating').notNull().default(1200),
   createdBy: text('created_by').notNull(),
   createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at')
+    .notNull()
+    .$onUpdate(() => new Date()),
 });
 
 export const battlesTable = pgTable('battles', {
