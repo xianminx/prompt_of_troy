@@ -111,13 +111,14 @@ async function runBattleAsync(
         const defendRate = `${defender?.after}/${formatChange(
             defender?.change || 0
         )}`;
+
         const winnerMessage =
             battle.winner === "attack"
-                ? `🏆${attack} (${attackRate}) WINS  ${defend} ${defendRate}`
-                : `🏆${defend} (${defendRate}) WINS ${attack} (${attackRate})`;
+                ? `🏆 \`${attack}(${attackRate})\`'s might prevails! \`${defend}(${defendRate})\` has been cast down, their fate sealed in the annals of legend. `
+                : `🏆 \`${defend}(${defendRate})\`'s fortitude prevails! \`${attack}(${attackRate})\`'s mighty blows are deflected by \`${defend}(${defendRate})\`'s enchanted guard.`;
         const finalMessage = `⚔️ Battle/\`${battle.id}\` \`${(
             battle.status || ""
-        ).toUpperCase()}\`!  ${winnerMessage}`;
+        ).toUpperCase()}\`! \n${winnerMessage}`;
 
         // Update the interaction response message
         await fetch(
@@ -173,7 +174,7 @@ async function handleBattleStart(body: any) {
         const defend = `<@${battle.defenderId}>/defend/${defendPrompt?.codeName}`;
 
         // First, respond to the interaction with the starting message
-        const battleStartMessage = `⚔️ Battle/\`${battle.id}\` STARTING...  🗡️ ${attack} 🆚 🛡️ ${defend}`;
+        const battleStartMessage = `⚔️ Battle/\`${battle.id}\` STARTING... \n🗡️ ${attack} 🆚 🛡️ ${defend}`;
 
         // Send immediate response to Discord to acknowledge the command
         const response = NextResponse.json({
