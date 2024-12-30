@@ -1,15 +1,13 @@
+'use client';
+
 import { GlobalCommands } from "./global-commands";
+import type { APIApplicationCommand } from "discord-api-types/v10";
 
-export default async function Page() {
+export default function Page({ commandsData }: { commandsData: APIApplicationCommand[] }) {
     return (
-        <>
-            <section className="grid grid-cols-1 gap-2">
-                <h2 className="text-2xl font-bold mb-4 text-center">
-                    Discord Commands
-                </h2>
-
-                <GlobalCommands />
-            </section>
-        </>
+        <section className="grid grid-cols-1 gap-2">
+            <h2>Discord Commands</h2>
+            <GlobalCommands data={commandsData} />
+        </section>
     );
 }
