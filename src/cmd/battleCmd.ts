@@ -125,13 +125,11 @@ async function runBattleAsync(
         const defendRate = `${defender?.after}/${formatChange(
             defender?.change || 0
         )}`;
-        const rateChangeMessage = `
-            * ${attack}: \`${attackRate}\` \n 
-            * ${defend}: \`${defendRate}\` \n `;
+        const rateChangeMessage = `\n* ${attack}: \`${attackRate}\` \n* ${defend}: \`${defendRate}\` \n `;
 
-        const attackerWinMessageTemplate = `🏆 <ATTACKER> delivers a devastating blow! The defense of <DEFENDER> collapses under the force of a relentless assault. Victory belongs to the unstoppable attacker!`;
+        const attackerWinMessageTemplate = `🏆  <ATTACKER> delivers a devastating blow! The defense of <DEFENDER> collapses under the force of a relentless assault. Victory belongs to the unstoppable attacker!`;
 
-        const defenderWinMessageTemplate = `🏆 <DEFENDER> stands unshaken! The relentless assault is neutralized by an impenetrable defense. Victory belongs to the steadfast protector! `;
+        const defenderWinMessageTemplate = `🏆  <DEFENDER> stands unshaken! The relentless assault is neutralized by an impenetrable defense. Victory belongs to the steadfast protector! `;
 
         const winnerMessageTemplate =
             battle.winner === "attack"
@@ -144,7 +142,7 @@ async function runBattleAsync(
 
         const finalMessage = `⚔️ Battle/\`${battle.id}\` \`${(
             battle.status || ""
-        ).toUpperCase()}\`! \n${winnerMessage} \n${rateChangeMessage}`;
+        ).toUpperCase()}\`! \n${winnerMessage} ${rateChangeMessage}`;
 
         // Send battle result as a followup message
         await sendFollowupMessage(application_id, token, finalMessage);
@@ -176,8 +174,8 @@ async function handleBattleStart(body: any) {
         }
         const { attackPrompt, defendPrompt } = battle;
 
-        const attack = `<@${battle.attackerId}>/attack/${attackPrompt?.codeName}`;
-        const defend = `<@${battle.defenderId}>/defend/${defendPrompt?.codeName}`;
+        const attack = `<@${battle.attackerId}>\`/attack/${attackPrompt?.codeName}\``;
+        const defend = `<@${battle.defenderId}>\`/defend/${defendPrompt?.codeName}\``;
 
         // First, respond to the interaction with the starting message
         const battleStartMessage = `⚔️ Battle/\`${battle.id}\` STARTING... \n🗡️ ${attack} 🆚 🛡️ ${defend}`;
