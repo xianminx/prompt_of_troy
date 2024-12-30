@@ -1,5 +1,4 @@
 import { fetchGlobalCommands } from "@/utils/discord";
-import type { APIApplicationCommand } from "discord-api-types/v10";
 import { ClientHome } from "@/components/ClientHome";
 
 // Server Component
