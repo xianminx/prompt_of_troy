@@ -202,7 +202,7 @@ async function handlePromptList(body: any) {
             //     .addComponents(button);
 
             return {
-                content: `${i + 1}. <@${p.createdBy}>/${p.type}/${p.codeName}`,
+                content: `${i + 1}. <@${p.createdBy}>/${p.type}/${p.codeName} (id: ${p.id})`,
                 // row
             };
         });
