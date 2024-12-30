@@ -10,7 +10,7 @@ export const playersTable = pgTable('players', {
   draws: integer('draws').notNull().default(0),
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at')
-    .notNull()
+    .notNull().defaultNow()
     .$onUpdate(() => new Date()),
 });
 
@@ -22,7 +22,7 @@ export const promptsTable = pgTable('prompts', {
   rating: integer('rating').notNull().default(1200),
   createdBy: text('created_by').notNull(),
   createdAt: timestamp('created_at').notNull().defaultNow(),
-  updatedAt: timestamp('updated_at')
+  updatedAt: timestamp('updated_at').defaultNow()
     .notNull()
     .$onUpdate(() => new Date()),
 });
@@ -50,7 +50,7 @@ export const battlesTable = pgTable('battles', {
   completedAt: timestamp('completed_at'),
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at')
-    .notNull()
+    .notNull().defaultNow()
     .$onUpdate(() => new Date()),
 });
 
