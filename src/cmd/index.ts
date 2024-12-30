@@ -51,7 +51,16 @@ async function handleComponentInteraction(body: {
     }
 }
 
-export { handleCommand, handleComponentInteraction };
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+async function getDiscordUser(body: any) {
+    const user = body.context === 0 ? body.member.user : body.user;
+    if (!user) {
+        throw new Error("User information not found");
+    }
+    return user;
+}
+
+export { handleCommand, handleComponentInteraction, getDiscordUser };
 export { BATTLE_COMMAND } from "./battleCmd";
 export { PROMPT_COMMAND } from "./promptCmd";
 export { TEST_COMMAND } from "./testCmd";

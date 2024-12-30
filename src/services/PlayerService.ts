@@ -3,7 +3,8 @@ import { db } from '../db';
 import { eq } from 'drizzle-orm';
 import { playersTable } from '../db/schema';
 import { findPlayers } from '../db/players';
-import { type SortDirection, type SortableFields } from '../types/player';
+import { type SortDirection, type PlayerSortableFields, Player } from '../types/player';
+import { PaginatedResponse } from "@/types";
 
 interface DiscordUser {
     username: string;
@@ -38,9 +39,9 @@ export class PlayerService {
     async getPaginated(
         page: number = 1, 
         limit: number = 10,
-        sortBy: SortableFields = 'rating',
+        sortBy: PlayerSortableFields = 'rating',
         sortDirection: SortDirection = 'desc'
-    ) {
+    ): Promise<PaginatedResponse<Player>> {
         const offset = (page - 1) * limit;
         const [players, total] = await Promise.all([
             findPlayers({
@@ -54,16 +55,15 @@ export class PlayerService {
             findPlayers({ count: true })
         ]);
 
-        const totalCount = typeof total === 'number' ? total : total.length;
+        const totalPages = Math.ceil(total / limit);
 
         return {
-            players,
-            total: totalCount,
-            pagination: {
-                page,
-                limit,
-                totalPages: Math.ceil(totalCount / limit)
-            }
+            items: players,
+            total,
+            page,
+            limit,
+            totalPages,
+            hasMore: page < totalPages,
         };
     }
 

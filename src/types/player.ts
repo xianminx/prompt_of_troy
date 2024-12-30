@@ -1,11 +1,15 @@
+import { type SelectPlayer } from "../db/";
+
+export type Player = SelectPlayer;
+
 export type SortDirection = 'asc' | 'desc';
-export type SortableFields = 'rating' | 'createdAt' | 'name';
+export type PlayerSortableFields = 'rating' | 'createdAt' | 'name';
 
 export interface PlayerQuery {
     limit?: number;
     offset?: number;
     orderBy?: {
-        field: SortableFields;
+        field: PlayerSortableFields;
         direction: SortDirection;
     };
     count?: boolean;

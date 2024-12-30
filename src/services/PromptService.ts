@@ -1,7 +1,8 @@
-import { type Prompt, type PaginatedPrompts, type SortableFields, type SortDirection, PromptQuery } from "../types/prompt";
+import { type Prompt, type PromptSortableFields, type SortDirection, PromptQuery, PromptType } from "../types/prompt";
 import { deletePrompt, findPrompts, getPromptById, insertPrompt } from "../db/index";
 import { generateCodeName } from "../utils/codeName";
 import { PlayerService } from "./PlayerService";
+import { PaginatedResponse } from "@/types";
 
 export class PromptService {
     private static instance: PromptService | null = null;
@@ -26,15 +27,19 @@ export class PromptService {
         return await getPromptById(id);
     }
 
+    async getAll(query?: PromptQuery): Promise<Prompt[]> {
+        return await findPrompts(query);
+    }
+
     async getPaginated(
         page: number = 1, 
         limit: number = 10,
-        sortBy: SortableFields = 'createdAt',
+        sortBy: PromptSortableFields = 'createdAt',
         sortDirection: SortDirection = 'desc',
         createdBy?: string,
         codeName?: string,
-        type?: 'attack' | 'defend'
-    ): Promise<PaginatedPrompts> {
+        type?: PromptType
+    ): Promise<PaginatedResponse<Prompt>> {
         try {
             const query: PromptQuery = {
                 limit,
@@ -56,10 +61,16 @@ export class PromptService {
                 findPrompts({ count: true })
             ]);
 
-            return {
-                prompts,
-                total: typeof total === 'number' ? total : total.length
-            };
+        const totalPages = Math.ceil(total / limit);
+
+        return {
+            items: prompts,
+            total,
+            page,
+            limit,
+            totalPages,
+            hasMore: page < totalPages,
+        };
         } catch (error) {
             console.error('Error getting prompts:', error);
             throw new Error('Failed to retrieve prompts');

@@ -2,30 +2,26 @@ import { type SelectPrompt } from "../db/";
 
 export type Prompt = SelectPrompt;
 
-export type SortableFields = 'createdAt';
+export type PromptType = 'attack' | 'defend';
+export type PromptSortableFields = 'createdAt';
 export type SortDirection = 'asc' | 'desc';
 
 export interface PromptQuery {
-    type?: 'attack' | 'defend';
+    type?: PromptType;
     createdBy?: string;
     codeName?: string;
     limit?: number;
     offset?: number;
     count?: boolean;
     orderBy?: {
-        field: SortableFields;
+        field: PromptSortableFields;
         direction: SortDirection;
     };
-}
-
-export interface PaginatedPrompts {
-    prompts: Prompt[];
-    total: number;
 }
 
 export interface PaginationParams {
     page?: number;
     limit?: number;
-    sortBy?: SortableFields;
+    sortBy?: PromptSortableFields;
     sortDirection?: SortDirection;
 } 

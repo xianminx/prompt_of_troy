@@ -5,7 +5,8 @@ import {
     InteractionResponseFlags,
 } from "discord-interactions";
 import { NextResponse } from "next/server";
-
+import { Battle } from "../types/battle";
+import { getDiscordUser } from ".";
 const BATTLE_COMMAND = {
     name: "battle",
     description: "Battle commands",
@@ -125,16 +126,20 @@ async function handleBattleStart(body: any) {
     }
 }
 
+// list my battles
 async function handleBattleList(body: any) {
     try {
-        const query = body.data.options[0]?.options?.[0]?.value;
+        const user = await getDiscordUser(body);
+        const query: any = { participantId: user.id };
+
         const battles = await BattleService.getInstance().getAll(query);
 
         const battleTable = [
             "| Battle | Status | Winner |",
             "|---------|---------|---------|",
             ...battles.map(
-                (b) => `| Battle/${b.id} | ${b.status} | ${b.winner || "-"} |`
+                (b: Battle) =>
+                    `| Battle/${b.id} | ${b.status} | ${b.winner || "-"} |`
             ),
         ].join("\n");
 

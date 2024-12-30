@@ -13,7 +13,8 @@ import {
 import { generateSecretKey } from "../utils/secretKeyGenerator";
 import { PlayerService } from "./PlayerService";
 import { PromptService } from "./PromptService";
-import { type BattleStatus, type BattleQuery, type RatingChanges } from '../types/battle';
+import { type BattleStatus, type BattleQuery, type RatingChanges, SortDirection, type BattleSortableFields } from '../types/battle';
+import { PaginatedResponse } from '../types';
 
 const MODEL = "gpt-4o-mini";
 const ELO_K = 32;
@@ -292,12 +293,12 @@ export class BattleService {
     async getPaginated(
         page: number = 1, 
         limit: number = 10,
-        sortBy: SortableFields = 'createdAt',
-        sortDirection: SortDirection = 'desc'
-    ) {
+        sortBy: BattleSortableFields = 'createdAt',
+        sortDirection: SortDirection = 'desc',
+        participantId?: string
+    ): Promise<PaginatedResponse<Battle>> {
         const offset = (page - 1) * limit;
         
-        // Run both queries in parallel using Promise.all
         const [battles, total] = await Promise.all([
             findBattles({
                 limit,
@@ -305,14 +306,21 @@ export class BattleService {
                 orderBy: {
                     field: sortBy,
                     direction: sortDirection
-                }
+                },
+                participantId
             }),
             findBattles({ count: true })
         ]);
 
+        const totalPages = Math.ceil(total / limit);
+
         return {
-            battles,
-            total: typeof total === 'number' ? total : total.length
+            items: battles,
+            total,
+            page,
+            limit,
+            totalPages,
+            hasMore: page < totalPages,
         };
     }
 }

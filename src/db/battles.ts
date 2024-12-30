@@ -1,8 +1,8 @@
-import { eq } from "drizzle-orm";
+import { eq, or } from "drizzle-orm";
 import type { BattleQuery } from "../types/battle";
 import { db } from "./index";
 import { battlesTable } from "./schema";
-import { sql } from 'drizzle-orm';
+import { sql } from "drizzle-orm";
 
 export async function updateStatus(
     id: string,
@@ -48,14 +48,14 @@ export async function findBattles(query?: BattleQuery) {
 
     if (query) {
         if (query.status) {
-            baseQuery = baseQuery.where(
-                eq(battlesTable.status, query.status)
-            );
+            baseQuery = baseQuery.where(eq(battlesTable.status, query.status));
         }
 
         if (query.orderBy) {
             baseQuery = baseQuery.orderBy(
-                sql`${battlesTable[query.orderBy.field]} ${sql.raw(query.orderBy.direction)}`
+                sql`${battlesTable[query.orderBy.field]} ${sql.raw(
+                    query.orderBy.direction
+                )}`
             );
         }
 
@@ -65,6 +65,15 @@ export async function findBattles(query?: BattleQuery) {
 
         if (query.offset) {
             baseQuery = baseQuery.offset(query.offset);
+        }
+
+        if (query.participantId) {
+            baseQuery = baseQuery.where(
+                or(
+                    eq(battlesTable.attackerId, query.participantId),
+                    eq(battlesTable.defenderId, query.participantId)
+                )
+            );
         }
     }
 
