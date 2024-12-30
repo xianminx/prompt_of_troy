@@ -70,6 +70,7 @@ async function handleBattleCmd(body: any) {
 }
 
 // Function to send a message to Discord and get message ID
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 async function sendMessageToDiscord(channelId: string, content: string) {
     const response = await fetch(
         `https://discord.com/api/v10/channels/${channelId}/messages`,
@@ -93,9 +94,9 @@ async function handleBattleStart(body: any) {
         const red = body.data.options[0].options[0].value;
         const blue = body.data.options[0].options[1].value;
         let battle = await BattleService.getInstance().create(red, blue);
-        const channelId = body?.channel_id; // Discord interaction payload should contain channel_id
+        const channelId = body?.channel_id;
+        const { token, application_id } = body;
 
-        // TODO: should send start message to discord first and then launch battle, and then update the message
         if (!channelId) {
             return NextResponse.json(
                 { error: "Channel ID not found" },
@@ -104,25 +105,61 @@ async function handleBattleStart(body: any) {
         }
         const { attackPrompt, defendPrompt } = battle;
 
-        const attack = `<@${battle.attackerId}>/attack/${attackPrompt?.codeName}>`;
-        const defend = `<@${battle.defenderId}>/defend/${defendPrompt?.codeName}>`;
+        const attack = `<@${battle.attackerId}>/attack/${attackPrompt?.codeName}`;
+        const defend = `<@${battle.defenderId}>/defend/${defendPrompt?.codeName}`;
 
-        const message = `⚔️ Battle/\`${battle.id}\` started!  🗡️ ${attack} 🆚 🛡️ ${defend}`;
+        // First, respond to the interaction with the starting message
+        const battleStartMessage = `⚔️ Battle/\`${battle.id}\` STARTING...  🗡️ ${attack} 🆚 🛡️ ${defend}`;
 
-        const discordMessage = await sendMessageToDiscord(channelId, message);
-        battle = await BattleService.getInstance().runBattle(battle.id);
-
-        const winnerMessage = battle.winner === 'attack' ? `👑${attack} WINS ${defend}` : `👑${defend} WINS ${attack}`;
-
-        return NextResponse.json({
+        // Send immediate response to Discord to acknowledge the command
+        const response = NextResponse.json({
             type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
             data: {
-                content: [
-                    `⚔️ Battle/\`${battle.id}\` \`${(battle.status||'').toUpperCase()}\`!  ${winnerMessage}`
-                ].join("\n"),
-                messageId: discordMessage.id,
+                content: battleStartMessage,
             },
         });
+
+        const formatChange = (change: number) =>
+            change > 0 ? `+${change}` : change;
+
+        // Run the battle and update the message asynchronously
+        (async () => {
+
+            try {
+                battle = await BattleService.getInstance().runBattle(battle.id);
+                const { attacker, defender } = battle.ratingChanges || {};
+                const attackRate = `${attacker?.after}/${formatChange(
+                    attacker?.change || 0
+                )}`;
+                const defendRate = `${defender?.after}/${formatChange(
+                    defender?.change || 0
+                )}`;
+                const winnerMessage =
+                    battle.winner === "attack"
+                        ? `🏆${attack} (${attackRate}) WINS  ${defend} ${defendRate}`
+                        : `🏆${defend} (${defendRate}) WINS ${attack} (${attackRate})`;
+                const finalMessage = `⚔️ Battle/\`${battle.id}\` \`${(
+                    battle.status || ""
+                ).toUpperCase()}\`!  ${winnerMessage}`;
+
+                // Update the interaction response message
+                await fetch(
+                    `https://discord.com/api/v10/webhooks/${application_id}/${token}/messages/@original`,
+                    {
+                        method: "PATCH",
+                        headers: {
+                            Authorization: `Bot ${process.env.DISCORD_TOKEN}`,
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({ content: finalMessage }),
+                    }
+                );
+            } catch (error) {
+                console.error("Error updating battle message:", error);
+            }
+        })();
+
+        return response;
     } catch (error: unknown) {
         console.error("Error in handleBattleStart:", error);
         const errorMessage =
