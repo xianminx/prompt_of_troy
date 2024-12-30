@@ -1,3 +1,4 @@
+import { RatingChanges } from '@/types/battle';
 import { integer, pgTable, text, timestamp, uuid, json } from 'drizzle-orm/pg-core';
 
 export const playersTable = pgTable('players', {
@@ -39,7 +40,7 @@ export const battlesTable = pgTable('battles', {
   status: text('status').notNull(),
   winner: text('winner'),
   secret: text('secret').notNull(),
-  ratingChanges: json('rating_changes'),
+  ratingChanges: json('rating_changes').$type<RatingChanges>(),
   error: text('error'),
   startedAt: timestamp('started_at'),
   completedAt: timestamp('completed_at'),

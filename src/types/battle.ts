@@ -2,10 +2,14 @@ import { type SelectBattle } from "../db/";
 
 export type Battle = SelectBattle;
 
-export type BattleStatus = 'pending' | 'running' | 'completed' | 'error';
+export type BattleStatus = "pending" | "running" | "completed" | "error";
 
-export type BattleSortableFields = 'createdAt' | 'status' | 'completedAt' | 'startedAt';
-export type SortDirection = 'asc' | 'desc';
+export type BattleSortableFields =
+    | "createdAt"
+    | "status"
+    | "completedAt"
+    | "startedAt";
+export type SortDirection = "asc" | "desc";
 
 export interface BattleQuery {
     limit?: number;
@@ -17,11 +21,19 @@ export interface BattleQuery {
         field: BattleSortableFields;
         direction: SortDirection;
     };
-    
+
     count?: boolean;
 }
 
 export interface RatingChanges {
-    attacker: number;
-    defender: number;
-} 
+    attacker: {
+        before: number;
+        after: number;
+        change: number;
+    };
+    defender: {
+        before: number;
+        after: number;
+        change: number;
+    };
+}

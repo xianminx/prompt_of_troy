@@ -192,15 +192,6 @@ async function handlePromptList(body: any) {
 
         // Create one action row per prompt
         const actionRows = paginatedPrompts.map((p, i) => {
-            // const label = `<@${p.createdBy}>/${p.type}/${p.codeName}`
-            // const button = new ButtonBuilder()
-            //     .setCustomId(`battle_${p.id}`)
-            //     .setLabel(`Battle ${label}`)
-            //     .setStyle(ButtonStyle.Primary);
-
-            // const row = new ActionRowBuilder<ButtonBuilder>()
-            //     .addComponents(button);
-
             return {
                 content: `${i + 1}. <@${p.createdBy}>/${p.type}/${p.codeName} (id: \`${p.id}\`)`,
                 // row

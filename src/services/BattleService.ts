@@ -252,6 +252,18 @@ export class BattleService {
             expectedScore
         );
         const defenderChange = -attackerChange;
+        const ratingChanges = {
+            attacker: {
+                before: attacker.rating,
+                after: attacker.rating + attackerChange,
+                change: attackerChange,
+            },
+            defender: {
+                before: defender.rating,
+                after: defender.rating + defenderChange,
+                change: defenderChange,
+            },
+        };
 
         await Promise.all([
             this.playerService.updateRating(
@@ -264,10 +276,7 @@ export class BattleService {
             ),
         ]);
 
-        return {
-            attacker: attackerChange,
-            defender: defenderChange,
-        };
+        return ratingChanges;
     }
 
     private _calculateExpectedScore(ratingA: number, ratingB: number): number {

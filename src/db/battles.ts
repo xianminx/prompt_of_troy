@@ -1,5 +1,5 @@
 import { eq, or } from "drizzle-orm";
-import type { BattleQuery } from "../types/battle";
+import type { BattleQuery, RatingChanges } from "../types/battle";
 import { db } from "./index";
 import { battlesTable } from "./schema";
 import { sql } from "drizzle-orm";
@@ -24,7 +24,7 @@ export async function updateBattleResult(
     updates: {
         status: string;
         winner: string;
-        ratingChanges: unknown;
+        ratingChanges: RatingChanges;
         completedAt: Date;
     }
 ) {
