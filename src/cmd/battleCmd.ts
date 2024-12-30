@@ -7,6 +7,8 @@ import {
 import { NextResponse } from "next/server";
 import { Battle } from "../types/battle";
 import { getDiscordUser } from ".";
+import { after } from 'next/server'
+
 const BATTLE_COMMAND = {
     name: "battle",
     description: "Battle commands",
@@ -89,11 +91,73 @@ async function sendMessageToDiscord(channelId: string, content: string) {
     return response.json();
 }
 
+async function runBattleAsync(
+    battle: Battle,
+    application_id: string,
+    token: string,
+    attack: string,
+    defend: string
+) {
+    try {
+        battle = await BattleService.getInstance().runBattle(battle.id);
+
+        const formatChange = (change: number) =>
+            change > 0 ? `+${change}` : change;
+
+        const { attacker, defender } = battle.ratingChanges || {};
+        const attackRate = `${attacker?.after}/${formatChange(
+            attacker?.change || 0
+        )}`;
+        const defendRate = `${defender?.after}/${formatChange(
+            defender?.change || 0
+        )}`;
+        const winnerMessage =
+            battle.winner === "attack"
+                ? `🏆${attack} (${attackRate}) WINS  ${defend} ${defendRate}`
+                : `🏆${defend} (${defendRate}) WINS ${attack} (${attackRate})`;
+        const finalMessage = `⚔️ Battle/\`${battle.id}\` \`${(
+            battle.status || ""
+        ).toUpperCase()}\`!  ${winnerMessage}`;
+
+        // Update the interaction response message
+        await fetch(
+            `https://discord.com/api/v10/webhooks/${application_id}/${token}/messages/@original`,
+            {
+                method: "PATCH",
+                headers: {
+                    Authorization: `Bot ${process.env.DISCORD_TOKEN}`,
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ content: finalMessage }),
+            }
+        );
+    } catch (error) {
+        console.error("Error in runBattleAsync:", error);
+        // Update the message to show the error
+        const errorMessage = `⚠️ Battle/\`${battle.id}\` failed! An error occurred while running the battle.`;
+        try {
+            await fetch(
+                `https://discord.com/api/v10/webhooks/${application_id}/${token}/messages/@original`,
+                {
+                    method: "PATCH",
+                    headers: {
+                        Authorization: `Bot ${process.env.DISCORD_TOKEN}`,
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({ content: errorMessage }),
+                }
+            );
+        } catch (updateError) {
+            console.error("Failed to update error message:", updateError);
+        }
+    }
+}
+
 async function handleBattleStart(body: any) {
     try {
         const red = body.data.options[0].options[0].value;
         const blue = body.data.options[0].options[1].value;
-        let battle = await BattleService.getInstance().create(red, blue);
+        const battle = await BattleService.getInstance().create(red, blue);
         const channelId = body?.channel_id;
         const { token, application_id } = body;
 
@@ -119,45 +183,8 @@ async function handleBattleStart(body: any) {
             },
         });
 
-        const formatChange = (change: number) =>
-            change > 0 ? `+${change}` : change;
-
         // Run the battle and update the message asynchronously
-        (async () => {
-
-            try {
-                battle = await BattleService.getInstance().runBattle(battle.id);
-                const { attacker, defender } = battle.ratingChanges || {};
-                const attackRate = `${attacker?.after}/${formatChange(
-                    attacker?.change || 0
-                )}`;
-                const defendRate = `${defender?.after}/${formatChange(
-                    defender?.change || 0
-                )}`;
-                const winnerMessage =
-                    battle.winner === "attack"
-                        ? `🏆${attack} (${attackRate}) WINS  ${defend} ${defendRate}`
-                        : `🏆${defend} (${defendRate}) WINS ${attack} (${attackRate})`;
-                const finalMessage = `⚔️ Battle/\`${battle.id}\` \`${(
-                    battle.status || ""
-                ).toUpperCase()}\`!  ${winnerMessage}`;
-
-                // Update the interaction response message
-                await fetch(
-                    `https://discord.com/api/v10/webhooks/${application_id}/${token}/messages/@original`,
-                    {
-                        method: "PATCH",
-                        headers: {
-                            Authorization: `Bot ${process.env.DISCORD_TOKEN}`,
-                            "Content-Type": "application/json",
-                        },
-                        body: JSON.stringify({ content: finalMessage }),
-                    }
-                );
-            } catch (error) {
-                console.error("Error updating battle message:", error);
-            }
-        })();
+        after(() => runBattleAsync(battle, application_id, token, attack, defend));
 
         return response;
     } catch (error: unknown) {
