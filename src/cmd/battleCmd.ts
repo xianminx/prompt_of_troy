@@ -7,7 +7,7 @@ import {
 import { NextResponse } from "next/server";
 import { Battle } from "../types/battle";
 import { getDiscordUser } from ".";
-import { after } from 'next/server'
+import { after } from "next/server";
 
 const BATTLE_COMMAND = {
     name: "battle",
@@ -91,6 +91,20 @@ async function sendMessageToDiscord(channelId: string, content: string) {
     return response.json();
 }
 
+async function sendFollowupMessage(application_id: string, token: string, content: string) {
+    await fetch(
+        `https://discord.com/api/v10/webhooks/${application_id}/${token}`,
+        {
+            method: "POST",
+            headers: {
+                Authorization: `Bot ${process.env.DISCORD_TOKEN}`,
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ content }),
+        }
+    );
+}
+
 async function runBattleAsync(
     battle: Battle,
     application_id: string,
@@ -111,45 +125,37 @@ async function runBattleAsync(
         const defendRate = `${defender?.after}/${formatChange(
             defender?.change || 0
         )}`;
+        const rateChangeMessage = `
+            * ${attack}: \`${attackRate}\` \n 
+            * ${defend}: \`${defendRate}\` \n `;
 
-        const winnerMessage =
+        const attackerWinMessageTemplate = `🏆 <ATTACKER> delivers a devastating blow! The defense of <DEFENDER> collapses under the force of a relentless assault. Victory belongs to the unstoppable attacker!`;
+
+        const defenderWinMessageTemplate = `🏆 <DEFENDER> stands unshaken! The relentless assault is neutralized by an impenetrable defense. Victory belongs to the steadfast protector! `;
+
+        const winnerMessageTemplate =
             battle.winner === "attack"
-                ? `🏆 \`${attack}(${attackRate})\`'s might prevails! \`${defend}(${defendRate})\` has been cast down, their fate sealed in the annals of legend. `
-                : `🏆 \`${defend}(${defendRate})\`'s fortitude prevails! \`${attack}(${attackRate})\`'s mighty blows are deflected by \`${defend}(${defendRate})\`'s enchanted guard.`;
+                ? attackerWinMessageTemplate
+                : defenderWinMessageTemplate;
+
+        const winnerMessage = winnerMessageTemplate
+            .replace("<ATTACKER>", attack)
+            .replace("<DEFENDER>", defend);
+
         const finalMessage = `⚔️ Battle/\`${battle.id}\` \`${(
             battle.status || ""
-        ).toUpperCase()}\`! \n${winnerMessage}`;
+        ).toUpperCase()}\`! \n${winnerMessage} \n${rateChangeMessage}`;
 
-        // Update the interaction response message
-        await fetch(
-            `https://discord.com/api/v10/webhooks/${application_id}/${token}/messages/@original`,
-            {
-                method: "PATCH",
-                headers: {
-                    Authorization: `Bot ${process.env.DISCORD_TOKEN}`,
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ content: finalMessage }),
-            }
-        );
+        // Send battle result as a followup message
+        await sendFollowupMessage(application_id, token, finalMessage);
+
     } catch (error) {
         console.error("Error in runBattleAsync:", error);
-        // Update the message to show the error
-        const errorMessage = `⚠️ Battle/\`${battle.id}\` failed! An error occurred while running the battle.`;
         try {
-            await fetch(
-                `https://discord.com/api/v10/webhooks/${application_id}/${token}/messages/@original`,
-                {
-                    method: "PATCH",
-                    headers: {
-                        Authorization: `Bot ${process.env.DISCORD_TOKEN}`,
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({ content: errorMessage }),
-                }
-            );
-        } catch (updateError) {
-            console.error("Failed to update error message:", updateError);
+            const errorMessage = `⚠️ Battle/\`${battle.id}\` failed! An error occurred while running the battle.`;
+            await sendFollowupMessage(application_id, token, errorMessage);
+        } catch (followupError) {
+            console.error("Failed to send error message:", followupError);
         }
     }
 }
@@ -185,7 +191,9 @@ async function handleBattleStart(body: any) {
         });
 
         // Run the battle and update the message asynchronously
-        after(() => runBattleAsync(battle, application_id, token, attack, defend));
+        after(() =>
+            runBattleAsync(battle, application_id, token, attack, defend)
+        );
 
         return response;
     } catch (error: unknown) {
